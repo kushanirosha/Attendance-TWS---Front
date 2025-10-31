@@ -1,0 +1,273 @@
+{
+  "employees": [
+    {
+      "id": "1060",
+      "name": "Kasun Perera",
+      "gender": "Male",
+      "status": "Active",
+      "department": "IT",
+      "project": "ERP System",
+      "profileImage": "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=150"
+    },
+    {
+      "id": "1028",
+      "name": "Nimal Silva",
+      "gender": "Male",
+      "status": "Active",
+      "department": "IT",
+      "project": "ERP System",
+      "profileImage": "https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?auto=compress&cs=tinysrgb&w=150"
+    },
+    {
+      "id": "1069",
+      "name": "Saman Fernando",
+      "gender": "Male",
+      "status": "Active",
+      "department": "IT",
+      "project": "Mobile App",
+      "profileImage": "https://images.pexels.com/photos/1516680/pexels-photo-1516680.jpeg?auto=compress&cs=tinysrgb&w=150"
+    },
+    {
+      "id": "1138",
+      "name": "Dilini Wijesinghe",
+      "gender": "Female",
+      "status": "Active",
+      "department": "Data Entry",
+      "project": "Client Database",
+      "profileImage": "https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=150"
+    },
+    {
+      "id": "1275",
+      "name": "Ruwan Jayasekara",
+      "gender": "Male",
+      "status": "Active",
+      "department": "Data Entry",
+      "project": "Client Database",
+      "profileImage": "https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=150"
+    },
+    {
+      "id": "1261",
+      "name": "Chathurika Mendis",
+      "gender": "Female",
+      "status": "Active",
+      "department": "Data Entry",
+      "project": "Inventory Management",
+      "profileImage": "https://images.pexels.com/photos/1858175/pexels-photo-1858175.jpeg?auto=compress&cs=tinysrgb&w=150"
+    },
+    {
+      "id": "1100",
+      "name": "Pradeep Rajapakse",
+      "gender": "Male",
+      "status": "Active",
+      "department": "IT",
+      "project": "Mobile App",
+      "profileImage": "https://images.pexels.com/photos/1516680/pexels-photo-1516680.jpeg?auto=compress&cs=tinysrgb&w=150"
+    },
+    {
+      "id": "1296",
+      "name": "Sanduni Amarasinghe",
+      "gender": "Female",
+      "status": "Inactive",
+      "department": "Administration",
+      "project": "N/A",
+      "profileImage": "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=150"
+    },
+    {
+      "id": "1079",
+      "name": "Tharaka Bandara",
+      "gender": "Male",
+      "status": "Active",
+      "department": "IT",
+      "project": "ERP System",
+      "profileImage": "https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=150"
+    },
+    {
+      "id": "1299",
+      "name": "Nethmi Gunasekara",
+      "gender": "Female",
+      "status": "Active",
+      "department": "Data Entry",
+      "project": "Inventory Management",
+      "profileImage": "https://images.pexels.com/photos/1130626/pexels-photo-1130626.jpeg?auto=compress&cs=tinysrgb&w=150"
+    }
+  ],
+  "attendance": [
+    {
+      "employeeId": "EMP001",
+      "checkInTime": "05:25 AM",
+      "shift": "Morning",
+      "status": "On time"
+    },
+    {
+      "employeeId": "EMP002",
+      "checkInTime": "05:45 AM",
+      "shift": "Morning",
+      "status": "Late"
+    },
+    {
+      "employeeId": "EMP003",
+      "checkInTime": "05:20 AM",
+      "shift": "Morning",
+      "status": "On time"
+    },
+    {
+      "employeeId": "EMP004",
+      "checkInTime": "01:25 PM",
+      "shift": "Noon",
+      "status": "On time"
+    },
+    {
+      "employeeId": "EMP005",
+      "checkInTime": "01:50 PM",
+      "shift": "Noon",
+      "status": "Late"
+    },
+    {
+      "employeeId": "EMP006",
+      "checkInTime": "09:25 PM",
+      "shift": "Night",
+      "status": "On time"
+    },
+    {
+      "employeeId": "EMP007",
+      "checkInTime": "05:30 AM",
+      "shift": "Morning",
+      "status": "On time"
+    },
+    {
+      "employeeId": "EMP009",
+      "checkInTime": "06:00 AM",
+      "shift": "Morning",
+      "status": "Late"
+    },
+    {
+      "employeeId": "EMP010",
+      "checkInTime": "01:30 PM",
+      "shift": "Noon",
+      "status": "On time"
+    }
+  ],
+  "projects": [
+    {
+      "id": "PRJ001",
+      "name": "ERP System",
+      "department": "IT",
+      "employees": ["1079", "1100", "1300"]
+    },
+    {
+      "id": "PRJ002",
+      "name": "Mobile App",
+      "department": "IT",
+      "employees": ["EMP003", "EMP007"]
+    },
+    {
+      "id": "PRJ003",
+      "name": "Client Database",
+      "department": "Data Entry",
+      "employees": ["EMP004", "EMP005"]
+    },
+    {
+      "id": "PRJ004",
+      "name": "Inventory Management",
+      "department": "Data Entry",
+      "employees": ["EMP006", "EMP010"]
+    }
+  ],
+  "users": [
+    {
+      "id": "USR001",
+      "name": "Admin User",
+      "email": "admin@tws.lk",
+      "role": "Administrator",
+      "status": "Active"
+    },
+    {
+      "id": "USR002",
+      "name": "Manager User",
+      "email": "manager@tws.lk",
+      "role": "Manager",
+      "status": "Active"
+    },
+    {
+      "id": "USR003",
+      "name": "HR User",
+      "email": "hr@tws.lk",
+      "role": "HR",
+      "status": "Active"
+    },
+    {
+      "id": "USR004",
+      "name": "Supervisor User",
+      "email": "supervisor@tws.lk",
+      "role": "Supervisor",
+      "status": "Inactive"
+    }
+  ],
+  "shiftAssignments": {
+    "2025-10": {
+      "1079": {
+        "1": "A", "2": "A", "3": "A", "4": "A", "5": "RD", "6": "A", "7": "A",
+        "8": "A", "9": "A", "10": "A", "11": "RD", "12": "A", "13": "A", "14": "A",
+        "15": "A", "16": "A", "17": "RD", "18": "A", "19": "A", "20": "A",
+        "21": "A", "22": "A", "23": "RD", "24": "A", "25": "A", "26": "A",
+        "27": "A", "28": "A", "29": "RD", "30": "A", "31": "A"
+      },
+      "1100": {
+        "1": "A", "2": "A", "3": "RD", "4": "A", "5": "A", "6": "A", "7": "A",
+        "8": "A", "9": "RD", "10": "A", "11": "A", "12": "A", "13": "A", "14": "A",
+        "15": "RD", "16": "A", "17": "A", "18": "A", "19": "A", "20": "A",
+        "21": "RD", "22": "A", "23": "A", "24": "A", "25": "A", "26": "A",
+        "27": "RD", "28": "A", "29": "A", "30": "A", "31": "A"
+      },
+      "EMP003": {
+        "1": "B", "2": "B", "3": "B", "4": "RD", "5": "B", "6": "B", "7": "B",
+        "8": "B", "9": "B", "10": "RD", "11": "B", "12": "B", "13": "B", "14": "B",
+        "15": "B", "16": "RD", "17": "B", "18": "B", "19": "B", "20": "B",
+        "21": "B", "22": "RD", "23": "B", "24": "B", "25": "B", "26": "B",
+        "27": "B", "28": "RD", "29": "B", "30": "B", "31": "B"
+      },
+      "EMP004": {
+        "1": "B", "2": "B", "3": "B", "4": "B", "5": "B", "6": "RD", "7": "B",
+        "8": "B", "9": "B", "10": "B", "11": "B", "12": "RD", "13": "B", "14": "B",
+        "15": "B", "16": "B", "17": "B", "18": "B", "19": "RD", "20": "B",
+        "21": "B", "22": "B", "23": "B", "24": "B", "25": "RD", "26": "B",
+        "27": "B", "28": "B", "29": "B", "30": "B", "31": "RD"
+      },
+      "EMP005": {
+        "1": "C", "2": "C", "3": "C", "4": "C", "5": "C", "6": "C", "7": "RD",
+        "8": "C", "9": "C", "10": "C", "11": "C", "12": "C", "13": "C", "14": "RD",
+        "15": "C", "16": "C", "17": "C", "18": "C", "19": "C", "20": "C",
+        "21": "RD", "22": "C", "23": "C", "24": "C", "25": "C", "26": "C",
+        "27": "C", "28": "RD", "29": "C", "30": "C", "31": "C"
+      },
+      "EMP006": {
+        "1": "C", "2": "C", "3": "C", "4": "C", "5": "RD", "6": "C", "7": "C",
+        "8": "C", "9": "C", "10": "C", "11": "RD", "12": "C", "13": "C", "14": "C",
+        "15": "C", "16": "C", "17": "RD", "18": "C", "19": "C", "20": "C",
+        "21": "C", "22": "C", "23": "RD", "24": "C", "25": "C", "26": "C",
+        "27": "C", "28": "C", "29": "RD", "30": "C", "31": "C"
+      },
+      "EMP007": {
+        "1": "A", "2": "RD", "3": "A", "4": "A", "5": "A", "6": "A", "7": "A",
+        "8": "RD", "9": "A", "10": "A", "11": "A", "12": "A", "13": "A", "14": "RD",
+        "15": "A", "16": "A", "17": "A", "18": "A", "19": "A", "20": "RD",
+        "21": "A", "22": "A", "23": "A", "24": "A", "25": "A", "26": "RD",
+        "27": "A", "28": "A", "29": "A", "30": "A", "31": "A"
+      },
+      "EMP009": {
+        "1": "B", "2": "B", "3": "B", "4": "B", "5": "B", "6": "B", "7": "B",
+        "8": "RD", "9": "B", "10": "B", "11": "B", "12": "B", "13": "B", "14": "B",
+        "15": "RD", "16": "B", "17": "B", "18": "B", "19": "B", "20": "B",
+        "21": "B", "22": "RD", "23": "B", "24": "B", "25": "B", "26": "B",
+        "27": "B", "28": "B", "29": "RD", "30": "B", "31": "B"
+      },
+      "EMP010": {
+        "1": "C", "2": "C", "3": "RD", "4": "C", "5": "C", "6": "C", "7": "C",
+        "8": "C", "9": "C", "10": "RD", "11": "C", "12": "C", "13": "C", "14": "C",
+        "15": "C", "16": "RD", "17": "C", "18": "C", "19": "C", "20": "C",
+        "21": "C", "22": "RD", "23": "C", "24": "C", "25": "C", "26": "C",
+        "27": "C", "28": "RD", "29": "C", "30": "C", "31": "C"
+      }
+    }
+  }
+}
