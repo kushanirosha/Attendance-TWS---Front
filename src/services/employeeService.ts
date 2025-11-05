@@ -36,3 +36,11 @@ export const deleteEmployee = async (id: string): Promise<void> => {
   const data = await res.json();
   if (!data.success) throw new Error(data.message || 'Failed to delete employee');
 };
+
+// ✅ NEW: Fetch single employee by ID (used for project employee IDs)
+export const getEmployeeById = async (id: string): Promise<Employee> => {
+  const res = await fetch(`${API_BASE}/${id}`);
+  const data = await res.json();
+  if (!data.success) throw new Error(data.message || 'Failed to fetch employee');
+  return data.data;
+};

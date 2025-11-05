@@ -1,17 +1,31 @@
+// src/services/projectService.ts
 import axios from 'axios';
 
 export interface Project {
   id: string;
   name: string;
   department: string;
-  employees: string[]; 
+  employees: string[];
 }
 
-const API_URL = 'http://localhost:3000/api/projects';
+const API_URL = 'http://localhost:3000/api/projects'; // ✅ update if backend port differs
 
 export const fetchProjects = async (): Promise<Project[]> => {
-  const res = await axios.get(API_URL);
-  return res.data.data;
+  try {
+    const res = await axios.get(API_URL);
+    console.log("📦 API response:", res.data);
+
+    // ✅ Handle structure: { success: true, data: [...] }
+    if (res.data.success && Array.isArray(res.data.data)) {
+      return res.data.data;
+    }
+
+    console.error("⚠️ Unexpected response format:", res.data);
+    return [];
+  } catch (error) {
+    console.error("❌ Error fetching projects:", error);
+    return [];
+  }
 };
 
 export const fetchProjectById = async (id: string): Promise<Project> => {
