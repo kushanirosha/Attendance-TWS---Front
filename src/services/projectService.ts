@@ -4,7 +4,7 @@ export interface Project {
   id: string;
   name: string;
   department: string;
-  employees: string[];
+  employees: string[]; 
 }
 
 const API_URL = 'http://localhost:3000/api/projects';

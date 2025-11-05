@@ -96,6 +96,7 @@ export const ShiftAssign = ({ employees, projects, shiftAssignments, onUpdateAss
             >
               <option value="IT">IT Department</option>
               <option value="Data Entry">Data Entry Department</option>
+              <option value="Administration Department"> Administration Department</option>
             </select>
           </div>
           <div className="flex-1">

@@ -11,6 +11,11 @@ import {
   Project
 } from '../../services/projectService';
 
+interface Employee {
+  id: string;
+  name: string;
+}
+
 export const Projects = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -19,14 +24,41 @@ export const Projects = () => {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   useEffect(() => {
-    fetchProjects().then(data => setProjects(data || []));
-    fetchEmployees().then(data => setEmployees(data || []));
+    const loadData = async () => {
+      const projData = await fetchProjects();
+      const empData = await fetchEmployees();
+
+      // ✅ Parse employee IDs from JSON string like ["1006", "1005"]
+      const parsedProjects = projData.map((p: any) => ({
+        ...p,
+        employees: typeof p.employees === 'string'
+          ? JSON.parse(p.employees || '[]')
+          : Array.isArray(p.employees)
+          ? p.employees
+          : []
+      }));
+
+      setProjects(parsedProjects || []);
+      setEmployees(empData || []);
+    };
+
+    loadData();
   }, []);
 
   const handleAddProject = async (project: Omit<Project, 'id'>) => {
     try {
       const saved = await addProjectAPI(project);
-      setProjects(prev => [...prev, saved]);
+
+      const parsedSaved = {
+        ...saved,
+        employees: typeof saved.employees === 'string'
+          ? JSON.parse(saved.employees || '[]')
+          : Array.isArray(saved.employees)
+          ? saved.employees
+          : []
+      };
+
+      setProjects(prev => [...prev, parsedSaved]);
       setIsAddModalOpen(false);
     } catch (err) {
       console.error('Failed to add project', err);
@@ -37,7 +69,17 @@ export const Projects = () => {
   const handleEditProject = async (id: string, updates: Partial<Project>) => {
     try {
       const updated = await updateProjectAPI(id, updates);
-      setProjects(prev => prev.map(p => (p.id === id ? updated : p)));
+
+      const parsedUpdated = {
+        ...updated,
+        employees: typeof updated.employees === 'string'
+          ? JSON.parse(updated.employees || '[]')
+          : Array.isArray(updated.employees)
+          ? updated.employees
+          : []
+      };
+
+      setProjects(prev => prev.map(p => (p.id === id ? parsedUpdated : p)));
       setIsEditModalOpen(false);
       setSelectedProject(null);
     } catch (err) {
@@ -87,7 +129,11 @@ export const Projects = () => {
                   <td className="px-6 py-4 text-sm">{p.id}</td>
                   <td className="px-6 py-4 text-sm">{p.name}</td>
                   <td className="px-6 py-4 text-sm">{p.department}</td>
-                  <td className="px-6 py-4 text-sm">{p.employees.map(e => e.id).join(', ')}</td>
+                  <td className="px-6 py-4 text-sm">
+                    {Array.isArray(p.employees)
+                      ? p.employees.join(', ') // ✅ show as 1006, 1005
+                      : '—'}
+                  </td>
                   <td className="px-6 py-4 text-sm flex space-x-3">
                     <motion.button
                       onClick={() => { setSelectedProject(p); setIsEditModalOpen(true); }}
@@ -141,8 +187,15 @@ interface ProjectFormProps {
 const ProjectForm = ({ project, employees, onSubmit }: ProjectFormProps) => {
   const [name, setName] = useState(project?.name || '');
   const [department, setDepartment] = useState(project?.department || 'IT Department');
-  const [selectedEmployees, setSelectedEmployees] = useState<string[]>(project?.employees.map(e => e.id) || []);
+  const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
   const [search, setSearch] = useState('');
+
+  // ✅ Load existing employees when editing a project
+  useEffect(() => {
+    if (project?.employees && Array.isArray(project.employees)) {
+      setSelectedEmployees(project.employees.map(String));
+    }
+  }, [project]);
 
   const filteredEmployees = useMemo(() => {
     const lower = search.toLowerCase();
@@ -159,11 +212,7 @@ const ProjectForm = ({ project, employees, onSubmit }: ProjectFormProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Convert selectedEmployees strings to objects
-    const employeesPayload = selectedEmployees.map(id => ({ id }));
-
-    onSubmit({ name, department, employees: employeesPayload });
+    onSubmit({ name, department, employees: selectedEmployees });
   };
 
   return (
@@ -189,6 +238,7 @@ const ProjectForm = ({ project, employees, onSubmit }: ProjectFormProps) => {
         >
           <option value="IT Department">IT Department</option>
           <option value="Data Entry Department">Data Entry Department</option>
+          <option value="Administration Department">Administration Department</option>
         </select>
       </div>
 
@@ -201,8 +251,11 @@ const ProjectForm = ({ project, employees, onSubmit }: ProjectFormProps) => {
           placeholder="Search employees..."
           className="w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
         />
+
         <div className="max-h-48 overflow-y-auto border border-gray-200 rounded-lg p-2">
-          {filteredEmployees.length === 0 && <p className="text-gray-400 text-sm">No employees found.</p>}
+          {filteredEmployees.length === 0 && (
+            <p className="text-gray-400 text-sm">No employees found.</p>
+          )}
           {filteredEmployees.map(emp => (
             <label
               key={emp.id}
@@ -231,4 +284,3 @@ const ProjectForm = ({ project, employees, onSubmit }: ProjectFormProps) => {
     </form>
   );
 };
-

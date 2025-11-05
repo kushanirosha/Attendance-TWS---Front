@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Plus, Edit, Search, Trash2 } from 'lucide-react';
-import { Employee } from '../../types';
+import { Employee, Project } from '../../types';
 import { Modal } from '../Modal';
 import { motion } from 'framer-motion';
 import * as employeeService from '../../services/employeeService';
+import * as projectService from '../../services/projectService';
 
 export const Employees = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -15,6 +17,7 @@ export const Employees = () => {
 
   useEffect(() => {
     loadEmployees();
+    loadProjects();
   }, []);
 
   const loadEmployees = async () => {
@@ -26,6 +29,15 @@ export const Employees = () => {
       console.error('Error loading employees', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadProjects = async () => {
+    try {
+      const data = await projectService.fetchProjects();
+      setProjects(data);
+    } catch (err) {
+      console.error('Error loading projects', err);
     }
   };
 
@@ -234,7 +246,12 @@ export const Employees = () => {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Project</label>
-            <input type="text" name="project" required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"/>
+            <select name="project" required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <option value="">Select a project</option>
+              {projects.map((proj) => (
+                <option key={proj.id} value={proj.name}>{proj.name}</option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Profile Image URL</label>
@@ -286,7 +303,12 @@ export const Employees = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Project</label>
-              <input type="text" name="project" defaultValue={selectedEmployee.project} required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"/>
+              <select name="project" defaultValue={selectedEmployee.project} required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="">Select a project</option>
+                {projects.map((proj) => (
+                  <option key={proj.id} value={proj.name}>{proj.name}</option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Profile Image URL</label>

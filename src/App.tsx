@@ -103,7 +103,7 @@ function App() {
       />
 
       <main className={`pt-20 px-4 md:px-8 pb-8 transition-all duration-300 ${isSidebarOpen ? 'md:pl-72' : 'pl-4'}`}>
-        <div className="max-w-7xl mx-auto">
+        <div className=" mx-auto">
           {activeTab === 'dashboard' && (
             <Dashboard
               employees={data.employees}

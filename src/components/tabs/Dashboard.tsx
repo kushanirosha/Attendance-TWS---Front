@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Users, CheckCircle, XCircle, Clock, Calendar } from "lucide-react";
+import { Users, CheckCircle, XCircle, Clock, Calendar, LogOut } from "lucide-react";
 import { StatCard } from "../StatCard";
 import { Employee, Attendance, ShiftType } from "../../types";
 import { getCurrentShift } from "../../utils/dateUtils";
@@ -37,7 +37,7 @@ export const Dashboard = ({ employees, shiftAssignments }: DashboardProps) => {
   const presentCount = attendance.filter(a => a.status !== "Absent").length;
   const absentCount = attendance.filter(a => a.status === "Absent").length;
   const lateCount = attendance.filter(a => a.status === "Late").length;
-  const halfDayCount = attendance.filter(a => a.status === "Half day").length;
+  const earlyCount = attendance.filter(a => a.status === "Early Punchout").length; // new stat
   const rdCount = Object.entries(shiftAssignments).filter(
     ([_, assignments]) => assignments[currentDay] === "RD"
   ).length;
@@ -58,6 +58,7 @@ export const Dashboard = ({ employees, shiftAssignments }: DashboardProps) => {
     "On time": "bg-green-100 text-green-800",
     Late: "bg-yellow-100 text-yellow-800",
     "Half day": "bg-orange-100 text-orange-800",
+    "Early Punchout": "bg-purple-100 text-purple-800",
     Absent: "bg-red-100 text-red-800",
   };
 
@@ -67,35 +68,69 @@ export const Dashboard = ({ employees, shiftAssignments }: DashboardProps) => {
       <div className={`rounded-xl border-2 p-6 ${shiftColors[currentShift]}`}>
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold mb-2">Current Shift: {currentShift}</h2>
-            <p className="text-lg font-medium opacity-80">{shiftTimings[currentShift]}</p>
+            <h2 className="text-2xl font-bold mb-2">
+              Current Shift: {currentShift}
+            </h2>
+            <p className="text-lg font-medium opacity-80">
+              {shiftTimings[currentShift]}
+            </p>
           </div>
           <Calendar className="w-12 h-12 opacity-60" />
         </div>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
         <StatCard
           title="Total Employees"
-          value={employees.filter(e => e.status === "Active").length}
+          value={`M: ${employees.filter(e => e.status === "Active" && e.gender === "Male").length} | F: ${employees.filter(e => e.status === "Active" && e.gender === "Female").length}`}
           icon={Users}
           color="blue"
         />
-        <StatCard title="Present" value={presentCount} icon={CheckCircle} color="green" />
-        <StatCard title="Absent" value={absentCount} icon={XCircle} color="red" />
-        <StatCard title="Late Coming" value={lateCount} icon={Clock} color="yellow" />
-        <StatCard title="Rest Day (Today)" value={rdCount} icon={Calendar} color="orange" />
+        <StatCard
+          title="Present"
+          value={`M: ${employees.filter(e => e.attendance === "Present" && e.gender === "Male").length} | F: ${employees.filter(e => e.attendance === "Present" && e.gender === "Female").length}`}
+          icon={CheckCircle}
+          color="green"
+        />
+        <StatCard
+          title="Absent"
+          value={`M: ${employees.filter(e => e.attendance === "Absent" && e.gender === "Male").length} | F: ${employees.filter(e => e.attendance === "Absent" && e.gender === "Female").length}`}
+          icon={XCircle}
+          color="red"
+        />
+        <StatCard
+          title="Late Coming"
+          value={`M: ${employees.filter(e => e.attendance === "Late" && e.gender === "Male").length} | F: ${employees.filter(e => e.attendance === "Late" && e.gender === "Female").length}`}
+          icon={Clock}
+          color="yellow"
+        />
+        <StatCard
+          title="Early Punchouts"
+          value={`M: ${employees.filter(e => e.attendance === "Early Punchout" && e.gender === "Male").length} | F: ${employees.filter(e => e.attendance === "Early Punchout" && e.gender === "Female").length}`}
+          icon={LogOut}
+          color="purple"
+        />
+        <StatCard
+          title="Rest Day (Today)"
+          value={`M: ${employees.filter(e => e.attendance === "Rest Day" && e.gender === "Male").length} | F: ${employees.filter(e => e.attendance === "Rest Day" && e.gender === "Female").length}`}
+          icon={Calendar}
+          color="orange"
+        />
       </div>
 
       {/* Attendance Table */}
       <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
         <div className="p-6 border-b border-gray-200">
-          <h3 className="text-lg font-bold text-gray-900">Attendance - {currentShift} Shift</h3>
+          <h3 className="text-lg font-bold text-gray-900">
+            Attendance - {currentShift} Shift
+          </h3>
         </div>
 
         {loading ? (
-          <div className="p-6 text-center text-gray-600">Loading attendance...</div>
+          <div className="p-6 text-center text-gray-600">
+            Loading attendance...
+          </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -131,8 +166,9 @@ export const Dashboard = ({ employees, shiftAssignments }: DashboardProps) => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
-                          className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColors[record.status] || "bg-gray-100 text-gray-800"
-                            }`}
+                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            statusColors[record.status] || "bg-gray-100 text-gray-800"
+                          }`}
                         >
                           {record.status}
                         </span>
@@ -140,7 +176,6 @@ export const Dashboard = ({ employees, shiftAssignments }: DashboardProps) => {
                     </tr>
                   ))}
               </tbody>
-
             </table>
           </div>
         )}

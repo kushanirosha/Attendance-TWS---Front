@@ -1,39 +1,52 @@
-import { LucideIcon } from 'lucide-react';
-import { motion } from 'framer-motion';
+import React from "react";
 
 interface StatCardProps {
   title: string;
-  value: number;
-  icon: LucideIcon;
-  color: string;
+  value: string;
+  icon: React.ElementType;
+  color: string; // color will decide gradient tone
 }
 
 export const StatCard = ({ title, value, icon: Icon, color }: StatCardProps) => {
-  const colorClasses = {
-    blue: 'from-blue-500 to-blue-600',
-    green: 'from-green-500 to-green-600',
-    red: 'from-red-500 to-red-600',
-    yellow: 'from-yellow-500 to-yellow-600',
-    orange: 'from-orange-500 to-orange-600',
-  }[color] || 'from-gray-500 to-gray-600';
+  // Extract male/female counts
+  const match = value.match(/M:\s*(\d+)\s*\|\s*F:\s*(\d+)/);
+  const male = match ? parseInt(match[1]) : 0;
+  const female = match ? parseInt(match[2]) : 0;
+  const total = male + female;
+
+  // Gradient map for calm tones
+  const gradients: Record<string, string> = {
+    blue: "bg-gradient-to-br from-blue-50 to-blue-100",
+    green: "bg-gradient-to-br from-green-50 to-emerald-100",
+    red: "bg-gradient-to-br from-red-50 to-rose-100",
+    yellow: "bg-gradient-to-br from-yellow-50 to-amber-100",
+    orange: "bg-gradient-to-br from-orange-50 to-amber-100",
+    purple: "bg-gradient-to-br from-purple-50 to-indigo-100",
+  };
 
   return (
-    <motion.div
-      whileHover={{ scale: 1.02, y: -4 }}
-      transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-      className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden"
+    <div
+      className={`flex h-48 justify-between items-center ${gradients[color] || "bg-white"} rounded-2xl shadow-md border border-gray-100 p-6 hover:shadow-lg transition-all duration-200`}
     >
-      <div className="p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
-            <p className="text-3xl font-bold text-gray-900">{value}</p>
-          </div>
-          <div className={`w-14 h-14 bg-gradient-to-br ${colorClasses} rounded-lg flex items-center justify-center shadow-lg`}>
-            <Icon className="w-7 h-7 text-white" />
-          </div>
+      {/* Left section */}
+      <div>
+        <h3 className="text-xl font-semibold text-gray-700 mb-2">{title}</h3>
+        <div className="space-y-1">
+          <p className="text-base font-bold text-blue-700">Male: {male}</p>
+          <p className="text-base font-bold text-pink-700">Female: {female}</p>
         </div>
       </div>
-    </motion.div>
+
+      {/* Right section - Total + Icon */}
+      <div className="flex flex-col items-center justify-center text-right">
+        <div
+          className={`flex items-center justify-center w-16 h-16 rounded-full bg-white/60 mb-3`}
+        >
+          <Icon className={`w-8 h-8 text-${color}-600`} />
+        </div>
+        <p className="text-5xl font-extrabold text-gray-800 leading-none">{total}</p>
+        <p className="text-sm font-medium text-gray-500 mt-1">Total</p>
+      </div>
+    </div>
   );
 };
