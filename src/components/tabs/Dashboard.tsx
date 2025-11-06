@@ -4,6 +4,7 @@ import { StatCard } from "../StatCard";
 import { Employee, Attendance, ShiftType } from "../../types";
 import { getCurrentShift } from "../../utils/dateUtils";
 import { fetchAttendance } from "../../services/attendanceService";
+import { fetchEmployeeStats } from "../../services/statCardService";
 
 interface DashboardProps {
   employees: Employee[];
@@ -12,36 +13,38 @@ interface DashboardProps {
 
 export const Dashboard = ({ employees, shiftAssignments }: DashboardProps) => {
   const [attendance, setAttendance] = useState<Attendance[]>([]);
+  const [stats, setStats] = useState<Awaited<ReturnType<typeof fetchEmployeeStats>> | null>(null);
   const [loading, setLoading] = useState(true);
 
   const currentShift = getCurrentShift();
   const currentDay = new Date().getDate().toString();
 
   useEffect(() => {
-    const loadAttendance = async () => {
+    const loadData = async () => {
       setLoading(true);
       try {
-        const data = await fetchAttendance();
-        setAttendance(data);
+        const [attendanceData, statsData] = await Promise.all([
+          fetchAttendance(),
+          fetchEmployeeStats(),
+        ]);
+        setAttendance(attendanceData);
+        setStats(statsData);
       } catch (err) {
-        console.error(err);
+        console.error("Failed to load dashboard data:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    loadAttendance();
+    loadData();
   }, []);
 
-  // --- Stats ---
-  const presentCount = attendance.filter(a => a.status !== "Absent").length;
-  const absentCount = attendance.filter(a => a.status === "Absent").length;
-  const lateCount = attendance.filter(a => a.status === "Late").length;
-  const earlyCount = attendance.filter(a => a.status === "Early Punchout").length; // new stat
+  // Rest Day Count from shiftAssignments
   const rdCount = Object.entries(shiftAssignments).filter(
     ([_, assignments]) => assignments[currentDay] === "RD"
   ).length;
 
+  // Shift UI Config
   const shiftColors: Record<ShiftType, string> = {
     Morning: "bg-yellow-100 text-yellow-800 border-yellow-300",
     Noon: "bg-blue-100 text-blue-800 border-blue-300",
@@ -79,44 +82,60 @@ export const Dashboard = ({ employees, shiftAssignments }: DashboardProps) => {
         </div>
       </div>
 
-      {/* Stats */}
+      {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-        <StatCard
-          title="Total Employees"
-          value={`M: ${employees.filter(e => e.status === "Active" && e.gender === "Male").length} | F: ${employees.filter(e => e.status === "Active" && e.gender === "Female").length}`}
-          icon={Users}
-          color="blue"
-        />
-        <StatCard
-          title="Present"
-          value={`M: ${employees.filter(e => e.attendance === "Present" && e.gender === "Male").length} | F: ${employees.filter(e => e.attendance === "Present" && e.gender === "Female").length}`}
-          icon={CheckCircle}
-          color="green"
-        />
-        <StatCard
-          title="Absent"
-          value={`M: ${employees.filter(e => e.attendance === "Absent" && e.gender === "Male").length} | F: ${employees.filter(e => e.attendance === "Absent" && e.gender === "Female").length}`}
-          icon={XCircle}
-          color="red"
-        />
-        <StatCard
-          title="Late Coming"
-          value={`M: ${employees.filter(e => e.attendance === "Late" && e.gender === "Male").length} | F: ${employees.filter(e => e.attendance === "Late" && e.gender === "Female").length}`}
-          icon={Clock}
-          color="yellow"
-        />
-        <StatCard
-          title="Early Punchouts"
-          value={`M: ${employees.filter(e => e.attendance === "Early Punchout" && e.gender === "Male").length} | F: ${employees.filter(e => e.attendance === "Early Punchout" && e.gender === "Female").length}`}
-          icon={LogOut}
-          color="purple"
-        />
-        <StatCard
-          title="Rest Day (Today)"
-          value={`M: ${employees.filter(e => e.attendance === "Rest Day" && e.gender === "Male").length} | F: ${employees.filter(e => e.attendance === "Rest Day" && e.gender === "Female").length}`}
-          icon={Calendar}
-          color="orange"
-        />
+        {loading ? (
+          // Skeleton Loading for StatCards
+          Array.from({ length: 6 }).map((_, i) => (
+            <div
+              key={i}
+              className="bg-gray-200 border-2 border-dashed rounded-xl w-full h-32 animate-pulse"
+            />
+          ))
+        ) : stats ? (
+          <>
+            <StatCard
+              title="Total Employees"
+              value={stats.totalActive.format()}
+              icon={Users}
+              color="blue"
+            />
+            <StatCard
+              title="Present"
+              value={stats.present.format()}
+              icon={CheckCircle}
+              color="green"
+            />
+            <StatCard
+              title="Absent"
+              value={stats.absent.format()}
+              icon={XCircle}
+              color="red"
+            />
+            <StatCard
+              title="Late Coming"
+              value={stats.late.format()}
+              icon={Clock}
+              color="yellow"
+            />
+            <StatCard
+              title="Early Punchouts"
+              value={stats.earlyPunchout.format()}
+              icon={LogOut}
+              color="purple"
+            />
+            <StatCard
+              title="Rest Day (Today)"
+              value={stats.restDay.format()}
+              icon={Calendar}
+              color="orange"
+            />
+          </>
+        ) : (
+          <p className="col-span-full text-center text-red-600">
+            Failed to load employee stats.
+          </p>
+        )}
       </div>
 
       {/* Attendance Table */}
@@ -128,8 +147,13 @@ export const Dashboard = ({ employees, shiftAssignments }: DashboardProps) => {
         </div>
 
         {loading ? (
-          <div className="p-6 text-center text-gray-600">
-            Loading attendance...
+          <div className="p-12 text-center">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+            <p className="mt-2 text-gray-600">Loading attendance records...</p>
+          </div>
+        ) : attendance.length === 0 ? (
+          <div className="p-6 text-center text-gray-500">
+            No attendance records found for today.
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -153,7 +177,7 @@ export const Dashboard = ({ employees, shiftAssignments }: DashboardProps) => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {[...attendance]
                   .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-                  .map(record => (
+                  .map((record) => (
                     <tr key={record.id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         {record.id}

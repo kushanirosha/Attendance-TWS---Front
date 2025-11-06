@@ -12,6 +12,8 @@ interface ShiftTableProps {
   handleCellChange: (employeeId: string, day: string, value: string) => void;
   handleSave: () => void;
   handleExportToExcel: () => void;
+  saving: boolean;
+  fetching: boolean;
 }
 
 export const ShiftTable = ({
@@ -24,10 +26,12 @@ export const ShiftTable = ({
   handleCellChange,
   handleSave,
   handleExportToExcel,
+  saving,
+  fetching,
 }: ShiftTableProps) => {
   const months = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December",
+    "January","February","March","April","May","June",
+    "July","August","September","October","November","December",
   ];
 
   const getShiftColor = (shift: string) => {
@@ -41,7 +45,8 @@ export const ShiftTable = ({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+    <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden relative">
+      {/* Header */}
       <div className="p-6 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h3 className="text-lg font-bold text-gray-900">{selectedProject.name}</h3>
@@ -54,11 +59,13 @@ export const ShiftTable = ({
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleSave}
-            className="flex items-center space-x-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg shadow-md transition-colors"
+            disabled={saving || fetching}
+            className="flex items-center space-x-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg shadow-md transition-colors disabled:opacity-50"
           >
             <Save className="w-4 h-4" />
-            <span>Save</span>
+            <span>{saving ? "Saving…" : "Save"}</span>
           </motion.button>
+
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -71,6 +78,14 @@ export const ShiftTable = ({
         </div>
       </div>
 
+      {/* Loading Overlay */}
+      {fetching && (
+        <div className="absolute inset-0 bg-white bg-opacity-70 flex items-center justify-center z-10">
+          <div className="text-gray-600">Loading shifts…</div>
+        </div>
+      )}
+
+      {/* Table */}
       <div className="overflow-x-auto">
         <table className="min-w-full border-collapse">
           <thead>
@@ -88,10 +103,9 @@ export const ShiftTable = ({
               ))}
             </tr>
           </thead>
-
           <tbody>
             {employees
-              .filter((e) => selectedProject.employees.includes(e.id))
+              .filter((e) => (selectedProject.employees as any).includes(e.id))
               .map((employee, idx) => (
                 <tr
                   key={employee.id}
@@ -102,7 +116,10 @@ export const ShiftTable = ({
                   <td className="sticky left-0 z-10 px-4 py-3 text-sm font-medium text-gray-900 border-b border-r-2 border-gray-300 bg-inherit">
                     <div className="flex items-center space-x-2">
                       <img
-                        src={employee.profileImage || "https://via.placeholder.com/32"}
+                        src={
+                          employee.profileImage ||
+                          "https://via.placeholder.com/32"
+                        }
                         alt={employee.name}
                         className="w-8 h-8 rounded-full object-cover"
                       />
@@ -112,28 +129,41 @@ export const ShiftTable = ({
                       </div>
                     </div>
                   </td>
-                  {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((day) => {
-                    const dayStr = day.toString();
-                    const currentValue = currentAssignments[employee.id]?.[dayStr] || "";
-                    return (
-                      <td
-                        key={day}
-                        className={`px-1 py-1 text-center border-b border-r border-gray-300 ${getShiftColor(currentValue)}`}
-                      >
-                        <select
-                          value={currentValue}
-                          onChange={(e) => handleCellChange(employee.id, dayStr, e.target.value)}
-                          className={`w-full px-1 py-1.5 text-sm font-semibold text-center border-0 focus:ring-2 focus:ring-blue-500 cursor-pointer ${getShiftColor(currentValue)}`}
+                  {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(
+                    (day) => {
+                      const dayStr = day.toString();
+                      const currentValue =
+                        currentAssignments[employee.id]?.[dayStr] || "";
+                      return (
+                        <td
+                          key={day}
+                          className={`px-1 py-1 text-center border-b border-r border-gray-300 ${getShiftColor(
+                            currentValue
+                          )}`}
                         >
-                          <option value="">-</option>
-                          <option value="A">A</option>
-                          <option value="B">B</option>
-                          <option value="C">C</option>
-                          <option value="RD">RD</option>
-                        </select>
-                      </td>
-                    );
-                  })}
+                          <select
+                            value={currentValue}
+                            onChange={(e) =>
+                              handleCellChange(
+                                employee.id,
+                                dayStr,
+                                e.target.value
+                              )
+                            }
+                            className={`w-full px-1 py-1.5 text-sm font-semibold text-center border-0 focus:ring-2 focus:ring-blue-500 cursor-pointer ${getShiftColor(
+                              currentValue
+                            )}`}
+                          >
+                            <option value="">-</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="RD">RD</option>
+                          </select>
+                        </td>
+                      );
+                    }
+                  )}
                 </tr>
               ))}
           </tbody>

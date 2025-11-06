@@ -1,3 +1,4 @@
+// App.tsx
 import { useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
@@ -5,7 +6,7 @@ import { Dashboard } from './components/tabs/Dashboard';
 import { Employees } from './components/tabs/Employees';
 import { ShiftAssign } from './components/tabs/ShiftAssign';
 import { Users } from './components/tabs/Users';
-import { Projects } from './components/tabs/Projects'; // <-- added
+import { Projects } from './components/tabs/Projects';
 import { TabType, DummyData, Employee, ShiftAssignments, Project } from './types';
 import { getCurrentMonthYear, getMonthYearKey } from './utils/dateUtils';
 import dummyDataJson from './data/dummyData.json';
@@ -87,6 +88,9 @@ function App() {
   const currentMonthKey = getMonthYearKey(year, month);
   const currentMonthAssignments = data.shiftAssignments[currentMonthKey] || {};
 
+  // ← Extract all project IDs
+  const allProjectIds = data.projects.map(p => p.id);
+
   return (
     <div className="min-h-screen bg-gray-100">
       <Header
@@ -103,9 +107,10 @@ function App() {
       />
 
       <main className={`pt-20 px-4 md:px-8 pb-8 transition-all duration-300 ${isSidebarOpen ? 'md:pl-72' : 'pl-4'}`}>
-        <div className=" mx-auto">
+        <div className="mx-auto">
           {activeTab === 'dashboard' && (
             <Dashboard
+              projectIds={allProjectIds}   // ← ALL PROJECTS
               employees={data.employees}
               attendance={data.attendance}
               shiftAssignments={currentMonthAssignments}
@@ -130,6 +135,8 @@ function App() {
           {activeTab === 'projects' && (
             <Projects
               projects={data.projects}
+              onAddProject={handleAddProject}
+              onEditProject={handleEditProject}
             />
           )}
         </div>

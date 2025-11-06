@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Download, Save } from "lucide-react";
-import { Employee, Project, ShiftAssignments } from "../../types";
+import { Employee, Project } from "../../types";
 import {
   getCurrentMonthYear,
   getDaysInMonth,
@@ -10,20 +10,13 @@ import {
 import * as XLSX from "xlsx";
 import { ShiftTable } from "./ShiftTable";
 import { fetchProjects } from "../../services/projectService";
-import { fetchEmployees } from "../../services/employeeService"; // ✅ Import employee service
+import { fetchEmployees } from "../../services/employeeService";
+import {
+  fetchShiftAssignments,
+  saveShiftAssignments,
+} from "../../services/shiftAssignmentsService";
 
-interface ShiftAssignProps {
-  shiftAssignments: ShiftAssignments;
-  onUpdateAssignments: (
-    yearMonth: string,
-    assignments: { [employeeId: string]: { [day: string]: string } }
-  ) => void;
-}
-
-export const ShiftAssign = ({
-  shiftAssignments,
-  onUpdateAssignments,
-}: ShiftAssignProps) => {
+export const ShiftAssign = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,7 +31,13 @@ export const ShiftAssign = ({
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
 
-  // ✅ Fetch projects and employees
+  const [assignments, setAssignments] = useState<{
+    [employeeId: string]: { [day: string]: string };
+  }>({});
+  const [saving, setSaving] = useState(false);
+  const [fetching, setFetching] = useState(false);
+
+  /* ------------------- Load Projects & Employees ------------------- */
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -48,22 +47,20 @@ export const ShiftAssign = ({
           fetchEmployees(),
         ]);
 
-        // ✅ Fix employees field if it's a string
         const fixedProjects = projectData.map((p: any) => ({
           ...p,
           employees:
             typeof p.employees === "string"
               ? JSON.parse(p.employees)
-              : p.employees,
+              : Array.isArray(p.employees)
+              ? p.employees
+              : [],
         }));
-
-        console.log("✅ Projects fetched:", fixedProjects);
-        console.log("✅ Employees fetched:", employeeData);
 
         setProjects(fixedProjects);
         setEmployees(employeeData);
       } catch (err) {
-        console.error("❌ Error loading data:", err);
+        console.error("Error loading data:", err);
         setError("Failed to fetch data. Please try again later.");
       } finally {
         setLoading(false);
@@ -73,38 +70,70 @@ export const ShiftAssign = ({
     loadData();
   }, []);
 
-  // ✅ Filter projects by department
-  const departmentProjects = projects.filter((p) => {
-    if (selectedDepartment === "IT") return p.department === "IT Department";
-    if (selectedDepartment === "Data Entry")
-      return p.department === "Data Entry Department";
-    if (selectedDepartment === "Administration")
-      return p.department === "Administration Department";
-    return false;
-  });
-
+  /* ------------------- Load Assignments from API ------------------- */
   const yearMonthKey = getMonthYearKey(selectedYear, selectedMonth);
-  const daysInMonth = getDaysInMonth(selectedYear, selectedMonth);
-  const currentAssignments = shiftAssignments[yearMonthKey] || {};
 
-  const handleProjectClick = (project: Project) => setSelectedProject(project);
+  const loadAssignments = useCallback(async () => {
+    if (!selectedProject) {
+      setAssignments({});
+      return;
+    }
+    setFetching(true);
+    try {
+      const data = await fetchShiftAssignments(selectedProject.id, yearMonthKey);
+      setAssignments(data.assignments ?? {});
+    } catch (e) {
+      console.error("Failed to load assignments:", e);
+      setAssignments({});
+    } finally {
+      setFetching(false);
+    }
+  }, [selectedProject, yearMonthKey]);
 
-  const handleCellChange = (employeeId: string, day: string, value: string) => {
-    const updatedAssignments = {
-      ...currentAssignments,
+  useEffect(() => {
+    loadAssignments();
+  }, [loadAssignments]);
+
+  /* ------------------- Cell Change (Optimistic UI) ------------------- */
+  const handleCellChange = (
+    employeeId: string,
+    day: string,
+    value: string
+  ) => {
+    setAssignments((prev) => ({
+      ...prev,
       [employeeId]: {
-        ...(currentAssignments[employeeId] || {}),
+        ...(prev[employeeId] || {}),
         [day]: value,
       },
-    };
-    onUpdateAssignments(yearMonthKey, updatedAssignments);
+    }));
   };
 
-  const handleSave = () => {
-    localStorage.setItem("shiftAssignments", JSON.stringify(shiftAssignments));
-    alert("✅ Shift assignments saved successfully!");
+  /* ------------------- Save (Create / Update) ------------------- */
+  const handleSave = async () => {
+    if (!selectedProject) return;
+    setSaving(true);
+    try {
+      const result = await saveShiftAssignments({
+        projectId: selectedProject.id,
+        monthYear: yearMonthKey,
+        assignments,
+      });
+
+      const action = result.inserted ? "created" : "updated";
+      alert(`Shift schedule ${action} successfully!`);
+    } catch (e: any) {
+      console.error(e);
+      alert(
+        "Failed to save: " +
+          (e?.response?.data?.message || e.message)
+      );
+    } finally {
+      setSaving(false);
+    }
   };
 
+  /* ------------------- Export to Excel ------------------- */
   const handleExportToExcel = () => {
     if (!selectedProject) return;
 
@@ -118,8 +147,7 @@ export const ShiftAssign = ({
     const data = projectEmployees.map((emp) => {
       const row: any = { "Employee ID": emp.id, "Employee Name": emp.name };
       for (let day = 1; day <= daysInMonth; day++) {
-        const assignment =
-          currentAssignments[emp.id]?.[day.toString()] || "-";
+        const assignment = assignments[emp.id]?.[day.toString()] || "-";
         row[`Day ${day}`] = assignment;
       }
       return row;
@@ -134,26 +162,25 @@ export const ShiftAssign = ({
     );
   };
 
+  /* ------------------- UI Helpers ------------------- */
+  const departmentProjects = projects.filter((p) => {
+    if (selectedDepartment === "IT") return p.department === "IT Department";
+    if (selectedDepartment === "Data Entry")
+      return p.department === "Data Entry Department";
+    if (selectedDepartment === "Administration")
+      return p.department === "Administration Department";
+    return false;
+  });
+
+  const daysInMonth = getDaysInMonth(selectedYear, selectedMonth);
   const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
+    "January","February","March","April","May","June",
+    "July","August","September","October","November","December",
   ];
 
   if (loading)
     return (
-      <div className="text-center text-gray-600 py-10">
-        Loading data...
-      </div>
+      <div className="text-center text-gray-600 py-10">Loading data...</div>
     );
   if (error)
     return <div className="text-center text-red-500 py-10">{error}</div>;
@@ -162,10 +189,9 @@ export const ShiftAssign = ({
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-900">Shift Assignment</h2>
 
-      {/* Department, Year, Month */}
+      {/* Filters */}
       <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6">
         <div className="flex flex-col md:flex-row gap-4 mb-6">
-          {/* Department */}
           <div className="flex-1">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Department
@@ -173,23 +199,19 @@ export const ShiftAssign = ({
             <select
               value={selectedDepartment}
               onChange={(e) => {
-                setSelectedDepartment(e.target.value as
-                  | "IT"
-                  | "Data Entry"
-                  | "Administration");
+                setSelectedDepartment(
+                  e.target.value as "IT" | "Data Entry" | "Administration"
+                );
                 setSelectedProject(null);
               }}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             >
               <option value="IT">IT Department</option>
               <option value="Data Entry">Data Entry Department</option>
-              <option value="Administration">
-                Administration Department
-              </option>
+              <option value="Administration">Administration Department</option>
             </select>
           </div>
 
-          {/* Year */}
           <div className="flex-1">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Year
@@ -197,7 +219,7 @@ export const ShiftAssign = ({
             <select
               value={selectedYear}
               onChange={(e) => setSelectedYear(Number(e.target.value))}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             >
               {[2024, 2025, 2026].map((y) => (
                 <option key={y} value={y}>
@@ -207,7 +229,6 @@ export const ShiftAssign = ({
             </select>
           </div>
 
-          {/* Month */}
           <div className="flex-1">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Month
@@ -215,7 +236,7 @@ export const ShiftAssign = ({
             <select
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(Number(e.target.value))}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             >
               {months.map((m, idx) => (
                 <option key={idx} value={idx}>
@@ -226,7 +247,7 @@ export const ShiftAssign = ({
           </div>
         </div>
 
-        {/* ✅ Project List */}
+        {/* Project Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {departmentProjects.length === 0 ? (
             <p className="text-gray-500 col-span-full text-center">
@@ -237,7 +258,9 @@ export const ShiftAssign = ({
               const empIds =
                 typeof project.employees === "string"
                   ? JSON.parse(project.employees)
-                  : project.employees;
+                  : Array.isArray(project.employees)
+                  ? project.employees
+                  : [];
 
               const projectEmployees = employees.filter((e) =>
                 empIds.includes(e.id)
@@ -248,7 +271,7 @@ export const ShiftAssign = ({
                   key={project.id}
                   whileHover={{ scale: 1.02, y: -4 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => handleProjectClick(project)}
+                  onClick={() => setSelectedProject(project)}
                   className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
                     selectedProject?.id === project.id
                       ? "border-blue-500 bg-blue-50 shadow-lg"
@@ -264,7 +287,8 @@ export const ShiftAssign = ({
                         <img
                           key={emp.id}
                           src={
-                            emp.profileImage || "https://via.placeholder.com/40"
+                            emp.profileImage ||
+                            "https://via.placeholder.com/40"
                           }
                           alt={emp.name}
                           title={emp.name}
@@ -284,7 +308,7 @@ export const ShiftAssign = ({
         </div>
       </div>
 
-      {/* ✅ Shift Table */}
+      {/* Shift Table */}
       {selectedProject && (
         <ShiftTable
           selectedProject={selectedProject}
@@ -292,10 +316,12 @@ export const ShiftAssign = ({
           selectedYear={selectedYear}
           employees={employees}
           daysInMonth={daysInMonth}
-          currentAssignments={currentAssignments}
+          currentAssignments={assignments}
           handleCellChange={handleCellChange}
           handleSave={handleSave}
           handleExportToExcel={handleExportToExcel}
+          saving={saving}
+          fetching={fetching}
         />
       )}
     </div>
