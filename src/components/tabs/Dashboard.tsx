@@ -1,23 +1,17 @@
 import { useEffect, useState } from "react";
 import { Users, CheckCircle, XCircle, Clock, Calendar, LogOut } from "lucide-react";
 import { StatCard } from "../StatCard";
-import { Employee, Attendance, ShiftType } from "../../types";
+import { Attendance, ShiftType } from "../../types";
 import { getCurrentShift } from "../../utils/dateUtils";
 import { fetchAttendance } from "../../services/attendanceService";
 import { fetchEmployeeStats } from "../../services/statCardService";
 
-interface DashboardProps {
-  employees: Employee[];
-  shiftAssignments: { [employeeId: string]: { [day: string]: string } };
-}
-
-export const Dashboard = ({ employees, shiftAssignments }: DashboardProps) => {
+export const Dashboard = () => {
   const [attendance, setAttendance] = useState<Attendance[]>([]);
-  const [stats, setStats] = useState<Awaited<ReturnType<typeof fetchEmployeeStats>> | null>(null);
+  const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   const currentShift = getCurrentShift();
-  const currentDay = new Date().getDate().toString();
 
   useEffect(() => {
     const loadData = async () => {
@@ -38,11 +32,6 @@ export const Dashboard = ({ employees, shiftAssignments }: DashboardProps) => {
 
     loadData();
   }, []);
-
-  // Rest Day Count from shiftAssignments
-  const rdCount = Object.entries(shiftAssignments).filter(
-    ([_, assignments]) => assignments[currentDay] === "RD"
-  ).length;
 
   // Shift UI Config
   const shiftColors: Record<ShiftType, string> = {
@@ -69,64 +58,63 @@ export const Dashboard = ({ employees, shiftAssignments }: DashboardProps) => {
     <div className="space-y-6">
       {/* Current Shift Card */}
       <div className={`rounded-xl border-2 p-6 ${shiftColors[currentShift]}`}>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-center">
           <div>
             <h2 className="text-2xl font-bold mb-2">
               Current Shift: {currentShift}
             </h2>
-            <p className="text-lg font-medium opacity-80">
+            <p className="text-lg font-medium opacity-80 flex items-center justify-center">
               {shiftTimings[currentShift]}
             </p>
           </div>
-          <Calendar className="w-12 h-12 opacity-60" />
         </div>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
         {loading ? (
-          // Skeleton Loading for StatCards
           Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
-              className="bg-gray-200 border-2 border-dashed rounded-xl w-full h-32 animate-pulse"
+              className="bg-gray-200 border-2 border-dashed rounded-xl w-full h-48 animate-pulse"
             />
           ))
         ) : stats ? (
           <>
             <StatCard
               title="Total Employees"
-              value={stats.totalActive.format()}
+              value={`M: ${stats.totalActive?.male ?? 0} | F: ${stats.totalActive?.female ?? 0}`}
               icon={Users}
               color="blue"
             />
             <StatCard
               title="Present"
-              value={stats.present.format()}
+              value={`M: ${stats.present?.male ?? 0} | F: ${stats.present?.female ?? 0}`}
               icon={CheckCircle}
               color="green"
             />
             <StatCard
               title="Absent"
-              value={stats.absent.format()}
+              value={`M: ${stats.absent?.male ?? 0} | F: ${stats.absent?.female ?? 0}`}
               icon={XCircle}
               color="red"
             />
             <StatCard
               title="Late Coming"
-              value={stats.late.format()}
+              value={`M: ${stats.late?.male ?? 0} | F: ${stats.late?.female ?? 0}`}
               icon={Clock}
               color="yellow"
             />
             <StatCard
               title="Early Punchouts"
-              value={stats.earlyPunchout.format()}
+              value={`M: ${stats.earlyPunchout?.male ?? 0} | F: ${stats.earlyPunchout?.female ?? 0}`}
               icon={LogOut}
               color="purple"
             />
             <StatCard
               title="Rest Day (Today)"
-              value={stats.restDay.format()}
+              value={(stats.restDayShift?.today ?? 0).toString()}
+              subtitle={stats.restDayShift?.todayFormatted || "No one on RD today"}
               icon={Calendar}
               color="orange"
             />
