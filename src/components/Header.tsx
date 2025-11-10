@@ -62,7 +62,7 @@ export const Header = ({ userName, userRole, onLogout }: HeaderProps) => {
             )}
           </button>
 
-          <div className="hidden md:flex items-center space-x-3 px-4 py-2 bg-gray-50 rounded-lg">
+          {/* <div className="hidden md:flex items-center space-x-3 px-4 py-2 bg-gray-50 rounded-lg">
             <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
               <User className="w-5 h-5 text-white" />
             </div>
@@ -78,7 +78,8 @@ export const Header = ({ userName, userRole, onLogout }: HeaderProps) => {
           >
             <LogOut className="w-4 h-4" />
             <span className="hidden md:inline">Logout</span>
-          </button>
+          </button> */}
+          
         </div>
       </div>
     </header>
