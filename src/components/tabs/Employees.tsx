@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Plus, Edit, Search, Trash2 } from 'lucide-react';
 import { Employee, Project } from '../../types';
 import { Modal } from '../Modal';
@@ -14,6 +14,10 @@ export const Employees = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Refs for image preview
+  const addImagePreviewRef = useRef<HTMLImageElement>(null);
+  const editImagePreviewRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
     loadEmployees();
@@ -41,21 +45,28 @@ export const Employees = () => {
     }
   };
 
-  const handleAddEmployee = async (employee: Omit<Employee, 'id'> & { id: string }) => {
+  const handleAddEmployee = async (
+    employee: Omit<Employee, 'id'> & { id: string },
+    file?: File
+  ) => {
     try {
-      const newEmp = await employeeService.addEmployee(employee);
+      const newEmp = await employeeService.addEmployee(employee, file);
       setEmployees((prev) => [...prev, newEmp]);
-    } catch (err) {
-      console.error('Add employee failed', err);
+    } catch (err: any) {
+      alert(err.message || 'Failed to add employee');
     }
   };
 
-  const handleEditEmployee = async (id: string, updates: Partial<Employee>) => {
+  const handleEditEmployee = async (
+    id: string,
+    updates: Partial<Employee>,
+    file?: File
+  ) => {
     try {
-      const updated = await employeeService.updateEmployee(id, updates);
+      const updated = await employeeService.updateEmployee(id, updates, file);
       setEmployees((prev) => prev.map((emp) => (emp.id === id ? updated : emp)));
-    } catch (err) {
-      console.error('Edit employee failed', err);
+    } catch (err: any) {
+      alert(err.message || 'Failed to update employee');
     }
   };
 
@@ -69,53 +80,48 @@ export const Employees = () => {
     }
   };
 
-  const filteredEmployees = employees.filter(emp =>
+  const filteredEmployees = employees.filter((emp) =>
     emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     emp.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
     emp.department.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleAddSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const newEmployee = {
-      id: formData.get('id') as string,
-      name: formData.get('name') as string,
-      gender: formData.get('gender') as string,
-      status: formData.get('status') as 'Active' | 'Inactive',
-      department: formData.get('department') as string,
-      project: formData.get('project') as string,
-      profileImage: formData.get('profileImage') as string || undefined,
-    };
-    await handleAddEmployee(newEmployee);
+  // Reset preview on modal close
+  const closeAddModal = () => {
     setIsAddModalOpen(false);
+    setTimeout(() => {
+      if (addImagePreviewRef.current) {
+        addImagePreviewRef.current.src = 'https://via.placeholder.com/100';
+      }
+    }, 0);
   };
 
-  const handleEditSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!selectedEmployee) return;
-
-    const formData = new FormData(e.currentTarget);
-    const updatedEmployee = {
-      name: formData.get('name') as string,
-      gender: formData.get('gender') as string,
-      status: formData.get('status') as 'Active' | 'Inactive',
-      department: formData.get('department') as string,
-      project: formData.get('project') as string,
-      profileImage: formData.get('profileImage') as string || selectedEmployee.profileImage,
-    };
-    await handleEditEmployee(selectedEmployee.id, updatedEmployee);
+  const closeEditModal = () => {
     setIsEditModalOpen(false);
     setSelectedEmployee(null);
+    setTimeout(() => {
+      if (editImagePreviewRef.current) {
+        editImagePreviewRef.current.src = 'https://via.placeholder.com/100';
+      }
+    }, 0);
   };
 
   const openEditModal = (employee: Employee) => {
     setSelectedEmployee(employee);
     setIsEditModalOpen(true);
+    setTimeout(() => {
+      if (editImagePreviewRef.current) {
+        editImagePreviewRef.current.src =
+          employee.profileImageUrl ||
+          employee.profileImage ||
+          'https://via.placeholder.com/100';
+      }
+    }, 0);
   };
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h2 className="text-2xl font-bold text-gray-900">Employees Management</h2>
         <motion.button
@@ -129,6 +135,7 @@ export const Employees = () => {
         </motion.button>
       </div>
 
+      {/* Search */}
       <div className="relative">
         <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
         <input
@@ -140,6 +147,7 @@ export const Employees = () => {
         />
       </div>
 
+      {/* Table */}
       <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -161,9 +169,16 @@ export const Employees = () => {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center space-x-3">
                       <img
-                        src={employee.profileImage || 'https://via.placeholder.com/40'}
+                        src={
+                          employee.profileImage
+                            ? `http://localhost:3000/uploads/employees/${employee.profileImage}`
+                            : 'https://icon-library.com/images/person-image-icon/person-image-icon-27.jpg'
+                        }
                         alt={employee.name}
                         className="w-10 h-10 rounded-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = 'https://icon-library.com/images/person-image-icon/person-image-icon-27.jpg';
+                        }}
                       />
                       <span className="text-sm font-medium text-gray-900">{employee.name}</span>
                     </div>
@@ -171,11 +186,10 @@ export const Employees = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{employee.gender}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        employee.status === 'Active'
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}
+                      className={`px-3 py-1 rounded-full text-xs font-semibold ${employee.status === 'Active'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-red-100 text-red-800'
+                        }`}
                     >
                       {employee.status}
                     </span>
@@ -208,115 +222,281 @@ export const Employees = () => {
       </div>
 
       {/* Add Employee Modal */}
-      <Modal
-        isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
-        title="Add New Employee"
-      >
-        <form onSubmit={handleAddSubmit} className="space-y-4">
+      <Modal isOpen={isAddModalOpen} onClose={closeAddModal} title="Add New Employee">
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault();
+            const form = e.currentTarget;
+            const formData = new FormData(form);
+            const fileInput = form.querySelector('input[type="file"]') as HTMLInputElement;
+            const file = fileInput.files?.[0] || undefined;
+
+            const newEmployee = {
+              id: formData.get('id') as string,
+              name: formData.get('name') as string,
+              gender: formData.get('gender') as string,
+              status: formData.get('status') as 'Active' | 'Inactive',
+              department: formData.get('department') as string,
+              project: formData.get('project') as string,
+            };
+
+            await handleAddEmployee(newEmployee, file);
+            form.reset();
+            if (addImagePreviewRef.current) {
+              addImagePreviewRef.current.src = 'https://via.placeholder.com/100';
+            }
+            setIsAddModalOpen(false);
+          }}
+          className="space-y-4"
+        >
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Employee ID</label>
-            <input type="text" name="id" required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"/>
+            <input
+              type="text"
+              name="id"
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
           </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
-            <input type="text" name="name" required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"/>
+            <input
+              type="text"
+              name="name"
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
           </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Gender</label>
-            <select name="gender" required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <select
+              name="gender"
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
               <option value="Male">Male</option>
               <option value="Female">Female</option>
             </select>
           </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-            <select name="status" required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <select
+              name="status"
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
               <option value="Active">Active</option>
               <option value="Inactive">Inactive</option>
             </select>
           </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Department</label>
-            <select name="department" required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <select
+              name="department"
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
               <option value="IT">IT</option>
               <option value="Data Entry">Data Entry</option>
               <option value="Administration">Administration</option>
             </select>
           </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Project</label>
-            <select name="project" required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <select
+              name="project"
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
               <option value="">Select a project</option>
               {projects.map((proj) => (
-                <option key={proj.id} value={proj.name}>{proj.name}</option>
+                <option key={proj.id} value={proj.name}>
+                  {proj.name}
+                </option>
               ))}
             </select>
           </div>
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Profile Image URL</label>
-            <input type="url" name="profileImage" placeholder="https://example.com/image.jpg" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"/>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Profile Image</label>
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file && addImagePreviewRef.current) {
+                  addImagePreviewRef.current.src = URL.createObjectURL(file);
+                }
+              }}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            />
+            <div className="mt-2 flex justify-center">
+              <img
+                ref={addImagePreviewRef}
+                src="https://via.placeholder.com/100"
+                alt="Preview"
+                className="w-24 h-24 rounded-full object-cover border-4 border-gray-200"
+              />
+            </div>
           </div>
+
           <div className="flex justify-end space-x-3 pt-4">
-            <button type="button" onClick={() => setIsAddModalOpen(false)} className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Cancel</button>
-            <button type="submit" className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors">Add Employee</button>
+            <button
+              type="button"
+              onClick={closeAddModal}
+              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+            >
+              Add Employee
+            </button>
           </div>
         </form>
       </Modal>
 
       {/* Edit Employee Modal */}
-      <Modal
-        isOpen={isEditModalOpen}
-        onClose={() => { setIsEditModalOpen(false); setSelectedEmployee(null); }}
-        title="Edit Employee"
-      >
+      <Modal isOpen={isEditModalOpen} onClose={closeEditModal} title="Edit Employee">
         {selectedEmployee && (
-          <form onSubmit={handleEditSubmit} className="space-y-4">
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const form = e.currentTarget;
+              const formData = new FormData(form);
+              const fileInput = form.querySelector('input[type="file"]') as HTMLInputElement;
+              const file = fileInput.files?.[0] || undefined;
+
+              const updates: Partial<Employee> = {
+                name: formData.get('name') as string,
+                gender: formData.get('gender') as string,
+                status: formData.get('status') as 'Active' | 'Inactive',
+                department: formData.get('department') as string,
+                project: formData.get('project') as string,
+              };
+
+              await handleEditEmployee(selectedEmployee.id, updates, file);
+              closeEditModal();
+            }}
+            className="space-y-4"
+          >
             <div className="flex justify-center mb-4">
-              <img src={selectedEmployee.profileImage || 'https://via.placeholder.com/100'} alt={selectedEmployee.name} className="w-24 h-24 rounded-full object-cover border-4 border-gray-200"/>
+              <img
+                ref={editImagePreviewRef}
+                src={
+                  selectedEmployee.profileImageUrl ||
+                  selectedEmployee.profileImage ||
+                  'https://via.placeholder.com/100'
+                }
+                alt={selectedEmployee.name}
+                className="w-24 h-24 rounded-full object-cover border-4 border-gray-200"
+              />
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
-              <input type="text" name="name" defaultValue={selectedEmployee.name} required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"/>
+              <input
+                type="text"
+                name="name"
+                defaultValue={selectedEmployee.name}
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Gender</label>
-              <select name="gender" defaultValue={selectedEmployee.gender} required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <select
+                name="gender"
+                defaultValue={selectedEmployee.gender}
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
               </select>
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-              <select name="status" defaultValue={selectedEmployee.status} required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <select
+                name="status"
+                defaultValue={selectedEmployee.status}
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
                 <option value="Active">Active</option>
                 <option value="Inactive">Inactive</option>
               </select>
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Department</label>
-              <select name="department" defaultValue={selectedEmployee.department} required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <select
+                name="department"
+                defaultValue={selectedEmployee.department}
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
                 <option value="IT">IT</option>
                 <option value="Data Entry">Data Entry</option>
                 <option value="Administration">Administration</option>
               </select>
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Project</label>
-              <select name="project" defaultValue={selectedEmployee.project} required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <select
+                name="project"
+                defaultValue={selectedEmployee.project}
+                required
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
                 <option value="">Select a project</option>
                 {projects.map((proj) => (
-                  <option key={proj.id} value={proj.name}>{proj.name}</option>
+                  <option key={proj.id} value={proj.name}>
+                    {proj.name}
+                  </option>
                 ))}
               </select>
             </div>
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Profile Image URL</label>
-              <input type="url" name="profileImage" defaultValue={selectedEmployee.profileImage || ''} placeholder="https://example.com/image.jpg" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"/>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Change Profile Image</label>
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file && editImagePreviewRef.current) {
+                    editImagePreviewRef.current.src = URL.createObjectURL(file);
+                  }
+                }}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
             </div>
+
             <div className="flex justify-end space-x-3 pt-4">
-              <button type="button" onClick={() => { setIsEditModalOpen(false); setSelectedEmployee(null); }} className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Cancel</button>
-              <button type="submit" className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors">Save Changes</button>
+              <button
+                type="button"
+                onClick={closeEditModal}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+              >
+                Save Changes
+              </button>
             </div>
           </form>
         )}

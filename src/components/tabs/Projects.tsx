@@ -238,7 +238,7 @@ const ProjectForm = ({ project, employees, onSubmit }: ProjectFormProps) => {
         >
           <option value="IT Department">IT Department</option>
           <option value="Data Entry Department">Data Entry Department</option>
-          <option value="Administration Department">Administration Department</option>
+          {/* <option value="Administration Department">Administration Department</option> */}
         </select>
       </div>
 

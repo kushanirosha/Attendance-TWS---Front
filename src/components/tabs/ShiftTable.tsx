@@ -30,8 +30,8 @@ export const ShiftTable = ({
   fetching,
 }: ShiftTableProps) => {
   const months = [
-    "January","February","March","April","May","June",
-    "July","August","September","October","November","December",
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
   ];
 
   const getShiftColor = (shift: string) => {
@@ -109,19 +109,22 @@ export const ShiftTable = ({
               .map((employee, idx) => (
                 <tr
                   key={employee.id}
-                  className={`${
-                    idx % 2 === 0 ? "bg-white" : "bg-gray-50"
-                  } hover:bg-blue-50 transition-colors`}
+                  className={`${idx % 2 === 0 ? "bg-white" : "bg-gray-50"
+                    } hover:bg-blue-50 transition-colors`}
                 >
                   <td className="sticky left-0 z-10 px-4 py-3 text-sm font-medium text-gray-900 border-b border-r-2 border-gray-300 bg-inherit">
                     <div className="flex items-center space-x-2">
                       <img
                         src={
-                          employee.profileImage ||
-                          "https://via.placeholder.com/32"
+                          employee.profileImage
+                            ? `http://localhost:3000/uploads/employees/${employee.profileImage}`
+                            : 'https://icon-library.com/images/person-image-icon/person-image-icon-27.jpg'
                         }
                         alt={employee.name}
-                        className="w-8 h-8 rounded-full object-cover"
+                        className="w-10 h-10 rounded-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = 'https://icon-library.com/images/person-image-icon/person-image-icon-27.jpg';
+                        }}
                       />
                       <div>
                         <p className="font-medium">{employee.name}</p>

@@ -8,14 +8,12 @@ export const Dashboard = () => {
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  // FETCH FROM YOUR WORKING API
   const fetchAttendance = async () => {
     try {
       const res = await fetch("http://localhost:3000/api/attendance");
       if (!res.ok) throw new Error("Network error");
       const json = await res.json();
-      if (json.success) return json.data;
-      return [];
+      return json.success ? json.data : [];
     } catch (err) {
       console.error("Fetch attendance failed:", err);
       return [];
@@ -28,7 +26,7 @@ export const Dashboard = () => {
       try {
         const [attendanceData, statsData] = await Promise.all([
           fetchAttendance(),
-          fetchEmployeeStats(),
+          fetchEmployeeStats(), // This now returns lateComing with gender!
         ]);
         setAttendance(attendanceData);
         setStats(statsData);
@@ -39,6 +37,10 @@ export const Dashboard = () => {
       }
     };
     loadData();
+
+    // Optional: Auto-refresh every 15 seconds
+    const interval = setInterval(loadData, 15000);
+    return () => clearInterval(interval);
   }, []);
 
   const formatMF = (obj: any) => {
@@ -46,9 +48,6 @@ export const Dashboard = () => {
     if (typeof obj.format === "function") return obj.format();
     return `M: ${obj.male ?? 0} | F: ${obj.female ?? 0}`;
   };
-
-  const dummyLate = { male: 2, female: 1 };
-  // const dummyEarly = { male: 3, female: 0 };
 
   const shiftColors: Record<string, string> = {
     Morning: "bg-yellow-100 text-yellow-800 border-yellow-300",
@@ -70,7 +69,6 @@ export const Dashboard = () => {
     Absent: "bg-red-100 text-red-800",
   };
 
-  // Only 50 newest logs
   const latest50Logs = [...attendance]
     .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
     .slice(0, 50);
@@ -85,10 +83,13 @@ export const Dashboard = () => {
         <p className="text-2xl mt-3 opacity-90">
           {stats?.currentShift ? shiftTimings[stats.currentShift] : "Please wait..."}
         </p>
+        {/* {stats?.updatedAt && (
+          <p className="text-sm mt-2 opacity-70">Updated: {stats.updatedAt}</p>
+        )} */}
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
         {loading ? (
           Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="bg-gray-200 border-2 border-dashed rounded-xl h-48 animate-pulse" />
@@ -98,13 +99,16 @@ export const Dashboard = () => {
             <StatCard title="Total Employees" value={formatMF(stats.totalEmployees)} icon={Users} color="blue" />
             <StatCard title="Present (Current Shift)" value={formatMF(stats.present)} icon={CheckCircle} color="green" />
             <StatCard title="Absent (Current Shift)" value={formatMF(stats.absent)} icon={XCircle} color="red" />
+
+            {/* LATE COMING — NOW WITH GENDER FROM BACKEND */}
             <StatCard
-              title="Late Coming"
+              title="Late Coming (Current Shift)"
               value={formatMF(stats.lateComing)}
+              subtitle={stats.lateComing?.percentage ? `${stats.lateComing.percentage} of shift` : ""}
               icon={Clock}
               color="yellow"
             />
-            {/* <StatCard title="Early Punchout" value={formatMF(dummyEarly)} icon={LogOut} color="purple" /> */}
+
             <StatCard
               title="Rest Day (Today)"
               value={formatMF(stats.restDayShift)}
@@ -112,6 +116,14 @@ export const Dashboard = () => {
               icon={Calendar}
               color="orange"
             />
+
+            <StatCard
+              title="Admin (Today)"
+              value={formatMF(stats.lateComing)}
+              icon={LogOut}
+              color="purple"
+            />
+
           </>
         ) : (
           <p className="col-span-full text-center text-red-600 text-2xl">Failed to load stats.</p>
@@ -148,9 +160,7 @@ export const Dashboard = () => {
               <tbody className="divide-y divide-gray-200">
                 {latest50Logs.map((log) => (
                   <tr key={log.id} className="hover:bg-gray-50 transition">
-                    <td className="px-8 py-4 text-sm font-medium text-gray-900">
-                      {log.id}
-                    </td>
+                    <td className="px-8 py-4 text-sm font-medium text-gray-900">{log.id}</td>
                     <td className="px-8 py-4 text-sm text-gray-900">
                       {log.name === "N/A" ? "Unknown" : log.name}
                     </td>
@@ -159,7 +169,7 @@ export const Dashboard = () => {
                     </td>
                     <td className="px-8 py-4 text-sm">
                       <span className="px-3 py-1 rounded-full text-xs font-medium text-green-800">
-                        Check In
+                        Check_In
                       </span>
                     </td>
                     <td className="px-8 py-4 text-sm">

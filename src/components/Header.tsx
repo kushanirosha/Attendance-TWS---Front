@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { User, LogOut, Maximize, Minimize } from 'lucide-react';
 import { formatSriLankanDateTime } from '../utils/dateUtils';
+import logo from "../public/logo.png";
 
 interface HeaderProps {
   userName: string;
@@ -34,11 +35,9 @@ export const Header = ({ userName, userRole, onLogout }: HeaderProps) => {
     <header className="fixed top-0 left-0 right-0 h-16 bg-white shadow-md z-50 border-b border-gray-200">
       <div className="h-full px-6 flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">
-            T
-          </div>
+          <img src= {logo} className='h-10 w-10'/>
           <div className="hidden md:block">
-            <h1 className="text-xl font-bold text-gray-800">TWS Attendance System</h1>
+            <h1 className="text-xl font-bold text-gray-800">TWS BIOMETRIC DASHBOARD</h1>
           </div>
         </div>
 
@@ -79,7 +78,7 @@ export const Header = ({ userName, userRole, onLogout }: HeaderProps) => {
             <LogOut className="w-4 h-4" />
             <span className="hidden md:inline">Logout</span>
           </button> */}
-          
+
         </div>
       </div>
     </header>

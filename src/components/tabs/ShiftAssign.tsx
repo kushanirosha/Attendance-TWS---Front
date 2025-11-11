@@ -53,8 +53,8 @@ export const ShiftAssign = () => {
             typeof p.employees === "string"
               ? JSON.parse(p.employees)
               : Array.isArray(p.employees)
-              ? p.employees
-              : [],
+                ? p.employees
+                : [],
         }));
 
         setProjects(fixedProjects);
@@ -126,7 +126,7 @@ export const ShiftAssign = () => {
       console.error(e);
       alert(
         "Failed to save: " +
-          (e?.response?.data?.message || e.message)
+        (e?.response?.data?.message || e.message)
       );
     } finally {
       setSaving(false);
@@ -174,8 +174,8 @@ export const ShiftAssign = () => {
 
   const daysInMonth = getDaysInMonth(selectedYear, selectedMonth);
   const months = [
-    "January","February","March","April","May","June",
-    "July","August","September","October","November","December",
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
   ];
 
   if (loading)
@@ -208,7 +208,7 @@ export const ShiftAssign = () => {
             >
               <option value="IT">IT Department</option>
               <option value="Data Entry">Data Entry Department</option>
-              <option value="Administration">Administration Department</option>
+              {/* <option value="Administration">Administration Department</option> */}
             </select>
           </div>
 
@@ -259,8 +259,8 @@ export const ShiftAssign = () => {
                 typeof project.employees === "string"
                   ? JSON.parse(project.employees)
                   : Array.isArray(project.employees)
-                  ? project.employees
-                  : [];
+                    ? project.employees
+                    : [];
 
               const projectEmployees = employees.filter((e) =>
                 empIds.includes(e.id)
@@ -272,11 +272,10 @@ export const ShiftAssign = () => {
                   whileHover={{ scale: 1.02, y: -4 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setSelectedProject(project)}
-                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                    selectedProject?.id === project.id
+                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${selectedProject?.id === project.id
                       ? "border-blue-500 bg-blue-50 shadow-lg"
                       : "border-gray-200 bg-white hover:border-blue-300 hover:shadow-md"
-                  }`}
+                    }`}
                 >
                   <h3 className="font-bold text-lg mb-3 text-gray-900">
                     {project.name}
@@ -287,18 +286,20 @@ export const ShiftAssign = () => {
                         <img
                           key={emp.id}
                           src={
-                            emp.profileImage ||
-                            "https://via.placeholder.com/40"
+                            emp.profileImage
+                              ? `http://localhost:3000/uploads/employees/${emp.profileImage}`
+                              : "https://icon-library.com/images/person-image-icon/person-image-icon-27.jpg"
                           }
                           alt={emp.name}
                           title={emp.name}
                           className="w-10 h-10 rounded-full border-2 border-white shadow-md object-cover"
+                          onError={(e) => {
+                            e.currentTarget.src = "https://icon-library.com/images/person-image-icon/person-image-icon-27.jpg";
+                          }}
                         />
                       ))
                     ) : (
-                      <p className="text-gray-400 text-sm">
-                        No matching employees
-                      </p>
+                      <p className="text-gray-400 text-sm">No matching employees</p>
                     )}
                   </div>
                 </motion.div>
