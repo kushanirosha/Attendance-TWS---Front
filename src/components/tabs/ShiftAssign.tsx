@@ -9,6 +9,7 @@ import {
 } from "../../utils/dateUtils";
 import * as XLSX from "xlsx";
 import { ShiftTable } from "./ShiftTable";
+import { STLShiftTable } from "../STLShiftTable";   
 import { fetchProjects } from "../../services/projectService";
 import { fetchEmployees } from "../../services/employeeService";
 import {
@@ -17,6 +18,7 @@ import {
 } from "../../services/shiftAssignmentsService";
 
 export const ShiftAssign = () => {
+  /* … all the state & effects stay exactly the same … */
   const [projects, setProjects] = useState<Project[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
@@ -126,7 +128,7 @@ export const ShiftAssign = () => {
       console.error(e);
       alert(
         "Failed to save: " +
-        (e?.response?.data?.message || e.message)
+          (e?.response?.data?.message || e.message)
       );
     } finally {
       setSaving(false);
@@ -185,6 +187,9 @@ export const ShiftAssign = () => {
   if (error)
     return <div className="text-center text-red-500 py-10">{error}</div>;
 
+  // ---------- NEW: decide which table to render ----------
+  const isSTL = selectedProject?.name?.toUpperCase() === "STL";
+
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-900">Shift Assignment</h2>
@@ -208,7 +213,6 @@ export const ShiftAssign = () => {
             >
               <option value="IT">IT Department</option>
               <option value="Data Entry">Data Entry Department</option>
-              {/* <option value="Administration">Administration Department</option> */}
             </select>
           </div>
 
@@ -272,10 +276,11 @@ export const ShiftAssign = () => {
                   whileHover={{ scale: 1.02, y: -4 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setSelectedProject(project)}
-                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${selectedProject?.id === project.id
+                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                    selectedProject?.id === project.id
                       ? "border-blue-500 bg-blue-50 shadow-lg"
                       : "border-gray-200 bg-white hover:border-blue-300 hover:shadow-md"
-                    }`}
+                  }`}
                 >
                   <h3 className="font-bold text-lg mb-3 text-gray-900">
                     {project.name}
@@ -309,9 +314,25 @@ export const ShiftAssign = () => {
         </div>
       </div>
 
-      {/* Shift Table */}
-      {selectedProject && (
+      {/* ---------- RENDER THE RIGHT TABLE ---------- */}
+      {selectedProject && !isSTL && (
         <ShiftTable
+          selectedProject={selectedProject}
+          selectedMonth={selectedMonth}
+          selectedYear={selectedYear}
+          employees={employees}
+          daysInMonth={daysInMonth}
+          currentAssignments={assignments}
+          handleCellChange={handleCellChange}
+          handleSave={handleSave}
+          handleExportToExcel={handleExportToExcel}
+          saving={saving}
+          fetching={fetching}
+        />
+      )}
+
+      {selectedProject && isSTL && (
+        <STLShiftTable
           selectedProject={selectedProject}
           selectedMonth={selectedMonth}
           selectedYear={selectedYear}
