@@ -10,7 +10,7 @@ export const Dashboard = () => {
 
   const fetchAttendance = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/attendance");
+      const res = await fetch("https://backend.tws.ceyloncreative.online/api/attendance");
       if (!res.ok) throw new Error("Network error");
       const json = await res.json();
       return json.success ? json.data : [];

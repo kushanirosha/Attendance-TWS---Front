@@ -1,28 +1,54 @@
-// App.tsx
+// src/App.tsx
 import { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
+
+// Components
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
+import { Footer } from './components/Footer';
+import { Login } from './components/auth/Login';
+
+// Tabs
 import { Dashboard } from './components/tabs/Dashboard';
 import { Employees } from './components/tabs/Employees';
 import { ShiftAssign } from './components/tabs/ShiftAssign';
 import { Users } from './components/tabs/Users';
 import { Projects } from './components/tabs/Projects';
-import { TabType, DummyData, Employee, ShiftAssignments, Project } from './types';
-import { getCurrentMonthYear, getMonthYearKey } from './utils/dateUtils';
-import dummyDataJson from './data/dummyData.json';
 import { StatCardDetails } from './components/tabs/StatCardDetails';
 import { Reports } from './components/tabs/Reports';
 
-function App() {
+// Types & Utils
+import { TabType, DummyData, Employee, ShiftAssignments, Project } from './types';
+import { getCurrentMonthYear, getMonthYearKey } from './utils/dateUtils';
+import dummyDataJson from './data/dummyData.json';
+
+// Auth Service
+import { authService } from './services/authService';
+
+// ──────────────────────────────────────────────────────────────
+// Protected Route Component
+// ──────────────────────────────────────────────────────────────
+const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+  const isLoggedIn = authService.isLoggedIn();
+  return isLoggedIn ? children : <Navigate to="/login" replace />;
+};
+
+// ──────────────────────────────────────────────────────────────
+// Main App Layout (Protected)
+// ──────────────────────────────────────────────────────────────
+const AppLayout = () => {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [data, setData] = useState<DummyData>(dummyDataJson as DummyData);
 
+  // Load shift assignments from localStorage
   useEffect(() => {
-    const savedAssignments = localStorage.getItem('shiftAssignments');
-    if (savedAssignments) {
+    const saved = localStorage.getItem('shiftAssignments');
+    if (saved) {
       try {
-        const parsed = JSON.parse(savedAssignments);
+        const parsed = JSON.parse(saved);
         setData(prev => ({ ...prev, shiftAssignments: parsed }));
       } catch (e) {
         console.error('Failed to parse saved assignments');
@@ -30,125 +56,137 @@ function App() {
     }
   }, []);
 
-  // --- Employee Handlers ---
+  // Handlers
   const handleAddEmployee = (newEmployee: Omit<Employee, 'id'>) => {
     const newId = `EMP${String(data.employees.length + 1).padStart(3, '0')}`;
     const employee: Employee = { ...newEmployee, id: newId };
-    setData(prev => ({
-      ...prev,
-      employees: [...prev.employees, employee],
-    }));
+    setData(prev => ({ ...prev, employees: [...prev.employees, employee] }));
   };
 
-  const handleEditEmployee = (id: string, updatedEmployee: Partial<Employee>) => {
+  const handleEditEmployee = (id: string, updated: Partial<Employee>) => {
     setData(prev => ({
       ...prev,
       employees: prev.employees.map(emp =>
-        emp.id === id ? { ...emp, ...updatedEmployee } : emp
+        emp.id === id ? { ...emp, ...updated } : emp
       ),
     }));
   };
 
-  // --- Shift Assignment Handlers ---
   const handleUpdateAssignments = (
     yearMonth: string,
     assignments: { [employeeId: string]: { [day: string]: string } }
   ) => {
     setData(prev => ({
       ...prev,
-      shiftAssignments: {
-        ...prev.shiftAssignments,
-        [yearMonth]: assignments,
-      },
+      shiftAssignments: { ...prev.shiftAssignments, [yearMonth]: assignments },
     }));
   };
 
-  // --- Project Handlers ---
   const handleAddProject = (newProject: Omit<Project, 'id'>) => {
     const newId = `PROJ${String(data.projects.length + 1).padStart(3, '0')}`;
     const project: Project = { ...newProject, id: newId };
-    setData(prev => ({
-      ...prev,
-      projects: [...prev.projects, project],
-    }));
+    setData(prev => ({ ...prev, projects: [...prev.projects, project] }));
   };
 
-  const handleEditProject = (id: string, updatedProject: Partial<Project>) => {
+  const handleEditProject = (id: string, updated: Partial<Project>) => {
     setData(prev => ({
       ...prev,
       projects: prev.projects.map(proj =>
-        proj.id === id ? { ...proj, ...updatedProject } : proj
+        proj.id === id ? { ...proj, ...updated } : proj
       ),
     }));
   };
 
   const handleLogout = () => {
-    alert('Logging out...');
+    authService.logout();
+    toast.success('Logged out successfully');
   };
 
   const { year, month } = getCurrentMonthYear();
   const currentMonthKey = getMonthYearKey(year, month);
   const currentMonthAssignments = data.shiftAssignments[currentMonthKey] || {};
-
-  // ← Extract all project IDs
   const allProjectIds = data.projects.map(p => p.id);
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <Header
-        userName="Admin User"
-        userRole="Administrator"
-        onLogout={handleLogout}
-      />
+    <div className="min-h-screen bg-gray-100 flex flex-col">
+      <Header onLogout={handleLogout} />
 
-      <Sidebar
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        isOpen={isSidebarOpen}
-        onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
-      />
+      <div className="flex flex-1 overflow-hidden">
+        <Sidebar
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          isOpen={isSidebarOpen}
+          onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+        />
 
-      <main className={`pt-20 px-4 md:px-8 pb-8 transition-all duration-300 ${isSidebarOpen ? 'md:pl-72' : 'pl-4'}`}>
-        <div className="mx-auto">
-          {activeTab === 'dashboard' && (
-            <Dashboard
-              projectIds={allProjectIds}   // ← ALL PROJECTS
-              employees={data.employees}
-              attendance={data.attendance}
-              shiftAssignments={currentMonthAssignments}
-            />
-          )}
-          {activeTab === 'employees' && (
-            <Employees
-              employees={data.employees}
-              onAddEmployee={handleAddEmployee}
-              onEditEmployee={handleEditEmployee}
-            />
-          )}
-          {activeTab === 'shiftAssign' && (
-            <ShiftAssign
-              employees={data.employees}
-              projects={data.projects}
-              shiftAssignments={data.shiftAssignments}
-              onUpdateAssignments={handleUpdateAssignments}
-            />
-          )}
-          {activeTab === 'projects' && (
-            <Projects
-              projects={data.projects}
-              onAddProject={handleAddProject}
-              onEditProject={handleEditProject}
-            />
-          )}
+        <main
+          className={`flex-1 pt-20 px-4 md:px-8 pb-20 transition-all duration-300 ${
+            isSidebarOpen ? 'md:pl-72' : 'md:pl-4'
+          }`}
+        >
+          <div className="">
+            {activeTab === 'dashboard' && (
+              <Dashboard
+                projectIds={allProjectIds}
+                employees={data.employees}
+                attendance={data.attendance}
+                shiftAssignments={currentMonthAssignments}
+              />
+            )}
+            {activeTab === 'employees' && (
+              <Employees
+                employees={data.employees}
+                onAddEmployee={handleAddEmployee}
+                onEditEmployee={handleEditEmployee}
+              />
+            )}
+            {activeTab === 'shiftAssign' && (
+              <ShiftAssign
+                employees={data.employees}
+                projects={data.projects}
+                shiftAssignments={data.shiftAssignments}
+                onUpdateAssignments={handleUpdateAssignments}
+              />
+            )}
+            {activeTab === 'projects' && (
+              <Projects
+                projects={data.projects}
+                onAddProject={handleAddProject}
+                onEditProject={handleEditProject}
+              />
+            )}
+            {activeTab === 'statCardDetails' && <StatCardDetails />}
+            {activeTab === 'reports' && <Reports />}
+            {activeTab === 'users' && <Users users={data.users} />}
+          </div>
+        </main>
+      </div>
 
-          {activeTab === 'statCardDetails' && <StatCardDetails />}
-          {activeTab === 'reports' && <Reports />}
-
-          {activeTab === 'users' && <Users users={data.users} />}
-
-        </div>
-      </main>
+      {/* <Footer /> */}
     </div>
+  );
+};
+
+// ──────────────────────────────────────────────────────────────
+// Root App with Routing
+// ──────────────────────────────────────────────────────────────
+function App() {
+  return (
+    <BrowserRouter>
+      <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route
+          path="/*"
+          element={
+            <ProtectedRoute>
+              <AppLayout />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

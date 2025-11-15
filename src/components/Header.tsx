@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { User, LogOut, Maximize, Minimize } from 'lucide-react';
 import { formatSriLankanDateTime } from '../utils/dateUtils';
 import logo from "../public/logo.png";
+import toast from 'react-hot-toast';
 
 interface HeaderProps {
   userName: string;
   userRole: string;
-  onLogout: () => void;
+  
 }
 
 export const Header = ({ userName, userRole, onLogout }: HeaderProps) => {
@@ -30,6 +31,12 @@ export const Header = ({ userName, userRole, onLogout }: HeaderProps) => {
       setIsFullscreen(false);
     }
   };
+
+  const handleLogout = () => {
+  sessionStorage.removeItem('user');
+  toast.success('Logged out successfully');
+  window.location.href = '/login';
+};
 
   return (
     <header className="fixed top-0 left-0 right-0 h-16 bg-white shadow-md z-50 border-b border-gray-200">
@@ -69,15 +76,15 @@ export const Header = ({ userName, userRole, onLogout }: HeaderProps) => {
               <p className="text-sm font-semibold text-gray-800">{userName}</p>
               <p className="text-xs text-gray-500">{userRole}</p>
             </div>
-          </div>
+          </div> */}
 
           <button
-            onClick={onLogout}
-            className="flex items-center space-x-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
+            onClick={handleLogout}
+            className="flex items-center space-x-2 px-1 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
           >
             <LogOut className="w-4 h-4" />
-            <span className="hidden md:inline">Logout</span>
-          </button> */}
+            {/* <span className="hidden md:inline">Logout</span> */}
+          </button>
 
         </div>
       </div>

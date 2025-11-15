@@ -191,7 +191,7 @@ export const ShiftAssign = () => {
   const isSTL = selectedProject?.name?.toUpperCase() === "STL";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-7xl">
       <h2 className="text-2xl font-bold text-gray-900">Shift Assignment</h2>
 
       {/* Filters */}
@@ -292,7 +292,7 @@ export const ShiftAssign = () => {
                           key={emp.id}
                           src={
                             emp.profileImage
-                              ? `http://localhost:3000/uploads/employees/${emp.profileImage}`
+                              ? `https://backend.tws.ceyloncreative.online/uploads/employees/${emp.profileImage}`
                               : "https://icon-library.com/images/person-image-icon/person-image-icon-27.jpg"
                           }
                           alt={emp.name}
