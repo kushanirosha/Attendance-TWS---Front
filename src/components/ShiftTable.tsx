@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Download, Save } from "lucide-react";
-import { Employee, Project } from "../../types";
+import { Employee, Project } from "../types";
 
 interface ShiftTableProps {
   selectedProject: Project;

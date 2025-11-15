@@ -10,6 +10,8 @@ import { Projects } from './components/tabs/Projects';
 import { TabType, DummyData, Employee, ShiftAssignments, Project } from './types';
 import { getCurrentMonthYear, getMonthYearKey } from './utils/dateUtils';
 import dummyDataJson from './data/dummyData.json';
+import { StatCardDetails } from './components/tabs/StatCardDetails';
+import { Reports } from './components/tabs/Reports';
 
 function App() {
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
@@ -131,7 +133,6 @@ function App() {
               onUpdateAssignments={handleUpdateAssignments}
             />
           )}
-          {activeTab === 'users' && <Users users={data.users} />}
           {activeTab === 'projects' && (
             <Projects
               projects={data.projects}
@@ -139,6 +140,12 @@ function App() {
               onEditProject={handleEditProject}
             />
           )}
+
+          {activeTab === 'statCardDetails' && <StatCardDetails />}
+          {activeTab === 'reports' && <Reports />}
+
+          {activeTab === 'users' && <Users users={data.users} />}
+
         </div>
       </main>
     </div>

@@ -1,6 +1,7 @@
-import { LayoutDashboard, Users, Calendar, UserCog, ChevronRight, ChevronLeft, Folder } from 'lucide-react';
+import { LayoutDashboard, Users, Calendar, UserCog, ChevronRight, ChevronLeft, Folder, BarChart3, FileText } from 'lucide-react';
 import { TabType } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Footer } from './Footer';
 
 interface SidebarProps {
   activeTab: TabType;
@@ -12,9 +13,11 @@ interface SidebarProps {
 export const Sidebar = ({ activeTab, onTabChange, isOpen, onToggle }: SidebarProps) => {
   const tabs = [
     { id: 'dashboard' as TabType, label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'statCardDetails' as TabType, label: 'Stat Card Details', icon: BarChart3 },
     { id: 'employees' as TabType, label: 'Employees', icon: Users },
     { id: 'shiftAssign' as TabType, label: 'Shift Assign', icon: Calendar },
     { id: 'projects' as TabType, label: 'Projects', icon: Folder },
+    { id: 'reports' as TabType, label: 'Reports', icon: FileText },
     { id: 'users' as TabType, label: 'Users', icon: UserCog },
   ];
 
@@ -59,6 +62,8 @@ export const Sidebar = ({ activeTab, onTabChange, isOpen, onToggle }: SidebarPro
           </motion.aside>
         )}
       </AnimatePresence>
+
+      <Footer/>
     </>
   );
 };

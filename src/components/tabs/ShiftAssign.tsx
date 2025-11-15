@@ -8,7 +8,7 @@ import {
   getMonthYearKey,
 } from "../../utils/dateUtils";
 import * as XLSX from "xlsx";
-import { ShiftTable } from "./ShiftTable";
+import { ShiftTable } from "../ShiftTable";
 import { STLShiftTable } from "../STLShiftTable";   
 import { fetchProjects } from "../../services/projectService";
 import { fetchEmployees } from "../../services/employeeService";

@@ -50,5 +50,13 @@ export interface DummyData {
   shiftAssignments: ShiftAssignments;
 }
 
-export type TabType = 'dashboard' | 'employees' | 'shiftAssign' | 'users';
+export type TabType =
+  | 'dashboard'
+  | 'employees'
+  | 'shiftAssign'
+  | 'projects'
+  | 'users'
+  | 'statCardDetails'   
+  | 'reports';
+
 export type ShiftType = 'Morning' | 'Noon' | 'Night';
