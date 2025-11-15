@@ -89,7 +89,7 @@ export const Dashboard = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8">
         {loading ? (
           Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="bg-gray-200 border-2 border-dashed rounded-xl h-48 animate-pulse" />
@@ -117,12 +117,12 @@ export const Dashboard = () => {
               color="orange"
             />
 
-            <StatCard
+            {/* <StatCard
               title="Admin (Today)"
               value={formatMF(stats.lateComing)}
               icon={LogOut}
               color="purple"
-            />
+            /> */}
 
           </>
         ) : (

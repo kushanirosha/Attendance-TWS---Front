@@ -37,7 +37,7 @@ export const Header = ({ userName, userRole, onLogout }: HeaderProps) => {
         <div className="flex items-center space-x-4">
           <img src= {logo} className='h-10 w-10'/>
           <div className="hidden md:block">
-            <h1 className="text-xl font-bold text-gray-800">TWS BIOMETRIC DASHBOARD</h1>
+            <h1 className="text-xl font-bold text-gray-800">TWS ATTENDANCE DASHBOARD</h1>
           </div>
         </div>
 
