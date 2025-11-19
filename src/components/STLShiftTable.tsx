@@ -91,7 +91,7 @@ export const STLShiftTable = ({
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="min-w-full border-collapse">
+        <table className="max-w-screen-sm border-collapse">
           <thead>
             <tr className="bg-gray-50">
               <th className="sticky left-0 z-10 bg-gray-50 px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase border-b-2 border-r-2 border-gray-300">
@@ -121,7 +121,7 @@ export const STLShiftTable = ({
                       <img
                         src={
                           employee.profileImage
-                            ? `https://backend.tws.ceyloncreative.online/uploads/employees/${employee.profileImage}`
+                            ? `http://localhost:3000/uploads/employees/${employee.profileImage}`
                             : "https://icon-library.com/images/person-image-icon/person-image-icon-27.jpg"
                         }
                         alt={employee.name}

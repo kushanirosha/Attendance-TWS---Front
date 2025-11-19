@@ -8,7 +8,7 @@ export interface Project {
   employees: string[];
 }
 
-const API_URL = 'https://backend.tws.ceyloncreative.online/api/projects'; // ✅ update if backend port differs
+const API_URL = 'http://localhost:3000/api/projects'; // ✅ update if backend port differs
 
 export const fetchProjects = async (): Promise<Project[]> => {
   try {

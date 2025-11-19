@@ -171,7 +171,7 @@ export const Employees = () => {
                       <img
                         src={
                           employee.profileImage
-                            ? `https://backend.tws.ceyloncreative.online/uploads/employees/${employee.profileImage}`
+                            ? `http://localhost:3000/uploads/employees/${employee.profileImage}`
                             : 'https://icon-library.com/images/person-image-icon/person-image-icon-27.jpg'
                         }
                         alt={employee.name}
@@ -314,6 +314,7 @@ export const Employees = () => {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">Select a project</option>
+              <option value="ADMIN">ADMIN</option>
               {projects.map((proj) => (
                 <option key={proj.id} value={proj.name}>
                   {proj.name}
@@ -460,6 +461,7 @@ export const Employees = () => {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="">Select a project</option>
+                <option value="ADMIN">ADMIN</option>
                 {projects.map((proj) => (
                   <option key={proj.id} value={proj.name}>
                     {proj.name}

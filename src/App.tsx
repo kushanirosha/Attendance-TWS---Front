@@ -121,7 +121,7 @@ const AppLayout = () => {
 
         <main
           className={`flex-1 pt-20 px-4 md:px-8 pb-20 transition-all duration-300 ${
-            isSidebarOpen ? 'md:pl-72' : 'md:pl-4'
+            isSidebarOpen ? 'md:pl-72' : ''
           }`}
         >
           <div className="">

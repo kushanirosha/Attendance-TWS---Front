@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API_URL =
-  import.meta.env.VITE_API_URL || "https://backend.tws.ceyloncreative.online/api/shiftAssignments";
+  import.meta.env.VITE_API_URL || "http://localhost:3000/api/shiftAssignments";
 
 export const fetchShiftAssignments = async (projectId: string, monthYear: string) => {
   const res = await axios.get(`${API_URL}/${projectId}/${monthYear}`);
