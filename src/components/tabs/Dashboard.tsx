@@ -18,6 +18,7 @@ interface Stats {
 interface Log {
   id: string;
   name: string;
+  project: string;
   checkInTime: string;
   timestamp: string;
   status: string;
@@ -187,7 +188,7 @@ export const Dashboard = () => {
                   <tr key={log.id} className="hover:bg-gray-50 transition">
                     <td className="px-8 py-4 text-sm font-medium text-gray-900">{log.id}</td>
                     <td className="px-8 py-4 text-sm text-gray-900">{log.name || "Unknown"}</td>
-                     <td className="px-8 py-4 text-sm text-gray-900">{log.name || "Unknown"}</td>
+                     <td className="px-8 py-4 text-sm text-gray-900">{log.project || "Unknown"}</td>
                     <td className="px-8 py-4 text-sm text-gray-600">{log.checkInTime}</td>
                     <td className="px-8 py-4 text-sm">
                       <span
