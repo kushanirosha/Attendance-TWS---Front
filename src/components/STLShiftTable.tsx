@@ -49,7 +49,7 @@ export const STLShiftTable = ({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden relative">
+    <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden relative max-w-[1600px]">
       {/* Header */}
       <div className="p-6 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -118,7 +118,7 @@ export const STLShiftTable = ({
                 >
                   <td className="sticky left-0 z-10 px-4 py-3 text-sm font-medium text-gray-900 border-b border-r-2 border-gray-300 bg-inherit">
                     <div className="flex items-center space-x-2">
-                      <img
+                      {/* <img
                         src={
                           employee.profileImage
                             ? `http://localhost:3000/uploads/employees/${employee.profileImage}`
@@ -129,7 +129,7 @@ export const STLShiftTable = ({
                         onError={(e) => {
                           e.currentTarget.src = "https://icon-library.com/images/person-image-icon/person-image-icon-27.jpg";
                         }}
-                      />
+                      /> */}
                       <div>
                         <p className="font-medium">{employee.name}</p>
                         <p className="text-xs text-gray-500">{employee.id}</p>
