@@ -133,17 +133,17 @@ export const Dashboard = () => {
         ) : stats ? (
           <>
             <StatCard title="Total Employees" value={formatMF(stats.totalEmployees)} icon={Users} color="blue" />
-            <StatCard title="Present" value={formatMF(stats.present)} icon={CheckCircle} color="green" />
-            <StatCard title="Absent" value={formatMF(stats.absent)} icon={XCircle} color="red" />
+            <StatCard title="Present (Current Shift)" value={formatMF(stats.present)} icon={CheckCircle} color="green" />
+            <StatCard title="Absent (Current Shift)" value={formatMF(stats.absent)} icon={XCircle} color="red" />
             <StatCard
-              title="Late Coming"
+              title="Late Coming (Current Shift)"
               value={formatMF(stats.lateComing)}
               subtitle={stats.lateComing?.percentage ? `${stats.lateComing.percentage} of shift` : ""}
               icon={Clock}
               color="yellow"
             />
             <StatCard
-              title="Rest Day Today"
+              title="Rest Days (Today)"
               value={formatMF(stats.restDayShift)}
               subtitle={stats.restDayShift?.todayFormatted || "No one on RD"}
               icon={Calendar}
