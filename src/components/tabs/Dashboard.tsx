@@ -88,6 +88,11 @@ export const Dashboard = () => {
       setLoading(false);
     });
 
+    socket.on("shift-change", () => {
+      console.log("Shift changed! Auto-refreshing page...");
+      window.location.reload();
+    });
+
     return () => {
       socket.disconnect();
     };

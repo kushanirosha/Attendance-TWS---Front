@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { User, LogOut, Maximize, Minimize } from 'lucide-react';
+import { LogOut, Maximize, Minimize } from 'lucide-react';
 import { formatSriLankanDateTime } from '../utils/dateUtils';
 import logo from "../public/logo.png";
 import toast from 'react-hot-toast';
@@ -10,7 +10,7 @@ interface HeaderProps {
 
 }
 
-export const Header = ({ userName, userRole, onLogout }: HeaderProps) => {
+export const Header = ({  }: HeaderProps) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isFullscreen, setIsFullscreen] = useState(false);
 
