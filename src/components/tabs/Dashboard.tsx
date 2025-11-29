@@ -109,19 +109,6 @@ export const Dashboard = () => {
             {stats?.currentShift ? shiftTimings[stats.currentShift] : "Please wait..."}
           </p>
         </div>
-
-        {/* Live Indicator */}
-        {/* <div className="flex items-center gap-3 bg-gray-900 text-white px-6 py-4 rounded-2xl">
-          <div className={`w-4 h-4 rounded-full ${connectionStatus === "connected" ? "bg-green-400 animate-pulse" : "bg-red-500"}`} />
-          <span className="font-semibold text-lg">
-            {connectionStatus === "connected" ? "LIVE" : connectionStatus.toUpperCase()}
-          </span>
-          {stats?.updatedAt && (
-            <span className="text-sm opacity-75">
-              {new Date(stats.updatedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
-            </span>
-          )}
-        </div> */}
       </div>
 
       {/* Stats Grid */}

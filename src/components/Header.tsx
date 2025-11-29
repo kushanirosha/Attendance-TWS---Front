@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 interface HeaderProps {
   userName: string;
   userRole: string;
-  
+
 }
 
 export const Header = ({ userName, userRole, onLogout }: HeaderProps) => {
@@ -33,16 +33,16 @@ export const Header = ({ userName, userRole, onLogout }: HeaderProps) => {
   };
 
   const handleLogout = () => {
-  sessionStorage.removeItem('user');
-  toast.success('Logged out successfully');
-  window.location.href = '/login';
-};
+    sessionStorage.removeItem('user');
+    toast.success('Logged out successfully');
+    window.location.href = '/login';
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 h-16 bg-white shadow-md z-50 border-b border-gray-200">
       <div className="h-full px-6 flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <img src= {logo} className='h-10 w-10'/>
+          <img src={logo} className='h-10 w-10' />
           <div className="hidden md:block">
             <h1 className="text-xl font-bold text-gray-800">TWS ATTENDANCE DASHBOARD</h1>
           </div>
@@ -68,23 +68,14 @@ export const Header = ({ userName, userRole, onLogout }: HeaderProps) => {
             )}
           </button>
 
-          {/* <div className="hidden md:flex items-center space-x-3 px-4 py-2 bg-gray-50 rounded-lg">
-            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-              <User className="w-5 h-5 text-white" />
-            </div>
-            <div className="text-left">
-              <p className="text-sm font-semibold text-gray-800">{userName}</p>
-              <p className="text-xs text-gray-500">{userRole}</p>
-            </div>
-          </div> */}
-
-          <button
-            onClick={handleLogout}
-            className="flex items-center space-x-2 px-1 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
-          >
-            <LogOut className="w-4 h-4" />
-            {/* <span className="hidden md:inline">Logout</span> */}
-          </button>
+          {!isFullscreen && (
+            <button
+              onClick={handleLogout}
+              className="flex items-center space-x-2 px-1 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          )}
 
         </div>
       </div>
