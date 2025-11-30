@@ -8,7 +8,7 @@ interface AttendanceResponse {
 
 export const fetchAttendance = async (): Promise<Attendance[]> => {
   try {
-    const res = await fetch("http://localhost:3000/api/attendance");
+    const res = await fetch("https://backend.tws.ceyloncreative.online/api/attendance");
     const json: AttendanceResponse = await res.json();
 
     if (!json.success) throw new Error(json.message || "Failed to fetch attendance");
