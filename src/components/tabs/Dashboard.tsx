@@ -8,21 +8,54 @@ const WS_URL = import.meta.env.VITE_WS_URL || "https://backend.tws.ceyloncreativ
 interface Stats {
   currentShift: string;
   updatedAt: string;
-  totalEmployees: { male: number; female: number; format?: () => string };
-  present: { male: number; female: number; total: number; format?: () => string };
-  absent: { male: number; female: number; total: number; format?: () => string };
-  lateComing: { male: number; female: number; total: number; percentage: string; format?: () => string };
-  restDayShift: { male: number; female: number; total: number; todayFormatted?: string; format?: () => string };
+  totalEmployees: { male: number; female: number };
+  present: { male: number; female: number; total: number };
+  absent: { male: number; female: number; total: number; ids?: string[] };
+  lateComing: { male: number; female: number; total: number; percentage: string };
+  restDayShift: { male: number; female: number; total: number };
 }
 
 interface Log {
   id: string;
   name: string;
   project: string;
-  checkInTime: string;
+  checkInTime?: string;
   timestamp: string;
   status: string;
 }
+
+// ──────────────────────────────────────────────────────
+// FINAL FIX: Always show time in Sri Lanka (Asia/Colombo)
+// Works on ANY server, even wrong timezone cPanel hosts
+// ──────────────────────────────────────────────────────
+const formatToSriLankaTime = (utcString: string): string => {
+  if (!utcString) return "-";
+
+  try {
+    return new Intl.DateTimeFormat("en-US", {
+      timeZone: "Asia/Colombo",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    }).format(new Date(utcString));
+  } catch (e) {
+    return "Invalid Time";
+  }
+};
+
+// Make status look nice
+const formatStatus = (status: string): string => {
+  if (!status) return "N/A";
+  const map: Record<string, string> = {
+    onTime: "On time",
+    late: "Late",
+    halfDay: "Half day",
+    "On time": "On time",
+    Late: "Late",
+    "Half day": "Half day",
+  };
+  return map[status] || status;
+};
 
 export const Dashboard = () => {
   const [stats, setStats] = useState<Stats | null>(null);
@@ -33,7 +66,6 @@ export const Dashboard = () => {
   // Format M/F helper
   const formatMF = (obj: any): string => {
     if (!obj) return "M: 0 | F: 0";
-    if (typeof obj.format === "function") return obj.format();
     return `M: ${obj.male ?? 0} | F: ${obj.female ?? 0}`;
   };
 
@@ -70,7 +102,6 @@ export const Dashboard = () => {
     socket.on("connect", () => {
       console.log("Real-time dashboard connected");
       setConnectionStatus("connected");
-      setLoading(false);
     });
 
     socket.on("connect_error", (err) => {
@@ -89,7 +120,7 @@ export const Dashboard = () => {
     });
 
     socket.on("shift-change", () => {
-      console.log("Shift changed! Auto-refreshing page...");
+      console.log("Shift changed! Reloading...");
       window.location.reload();
     });
 
@@ -128,7 +159,7 @@ export const Dashboard = () => {
             <StatCard title="Present (Current Shift)" value={formatMF(stats.present)} icon={CheckCircle} color="green" />
             <StatCard title="Absent (Current Shift)" value={formatMF(stats.absent)} icon={XCircle} color="red" />
             <StatCard
-              title="Late Coming (Current Shift)"
+              title="Late Coming"
               value={formatMF(stats.lateComing)}
               subtitle={stats.lateComing?.percentage ? `${stats.lateComing.percentage} of shift` : ""}
               icon={Clock}
@@ -137,23 +168,22 @@ export const Dashboard = () => {
             <StatCard
               title="Rest Days (Today)"
               value={formatMF(stats.restDayShift)}
-              subtitle={stats.restDayShift?.todayFormatted || "No one on RD"}
               icon={Calendar}
               color="orange"
             />
           </>
         ) : (
-          <p className="col-span-full text-center text-red-600 text-2xl">No data received from server</p>
+          <p className="col-span-full text-center text-red-600 text-2xl">No data from server</p>
         )}
       </div>
 
-      {/* Attendance Table */}
+      {/* Live Attendance Table */}
       <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
         <div className="p-8 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
           <h3 className="text-2xl font-bold text-gray-900">
             Latest Check-ins - {stats?.currentShift || "All"} Shift
           </h3>
-          <p className="text-sm text-gray-600 mt-1">Real-time updates • Showing latest 50</p>
+          <p className="text-sm text-gray-600 mt-1">Real-time • Showing latest 50</p>
         </div>
 
         {loading ? (
@@ -180,15 +210,17 @@ export const Dashboard = () => {
                   <tr key={log.id} className="hover:bg-gray-50 transition">
                     <td className="px-8 py-4 text-sm font-medium text-gray-900">{log.id}</td>
                     <td className="px-8 py-4 text-sm text-gray-900">{log.name || "Unknown"}</td>
-                     <td className="px-8 py-4 text-sm text-gray-900">{log.project || "Unknown"}</td>
-                    <td className="px-8 py-4 text-sm text-gray-600">{log.checkInTime}</td>
+                    <td className="px-8 py-4 text-sm text-gray-900">{log.project || "N/A"}</td>
+                    <td className="px-8 py-4 text-sm font-medium text-gray-600">
+                      {formatToSriLankaTime(log.timestamp)}
+                    </td>
                     <td className="px-8 py-4 text-sm">
                       <span
                         className={`px-4 py-2 rounded-full text-xs font-bold ${
-                          statusColors[log.status] || "bg-gray-100 text-gray-800"
+                          statusColors[formatStatus(log.status)] || "bg-gray-100 text-gray-800"
                         }`}
                       >
-                        {log.status}
+                        {formatStatus(log.status)}
                       </span>
                     </td>
                   </tr>
