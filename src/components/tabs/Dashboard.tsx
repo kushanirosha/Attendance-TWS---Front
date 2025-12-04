@@ -3,7 +3,7 @@ import { Users, CheckCircle, XCircle, Clock, Calendar } from "lucide-react";
 import { StatCard } from "../StatCard";
 import { io, Socket } from "socket.io-client";
 
-const WS_URL = import.meta.env.VITE_WS_URL || "https://backend.tws.ceyloncreative.online";
+const WS_URL = import.meta.env.VITE_WS_URL || "http://localhost:3000";
 
 interface Stats {
   currentShift: string;

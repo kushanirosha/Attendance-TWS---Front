@@ -7,7 +7,7 @@ export interface User {
   created_at?: string;
 }
 
-const API_URL = 'https://backend.tws.ceyloncreative.online';
+const API_URL = 'http://localhost:3000';
 
 export const usersService = {
   async getAll(): Promise<User[]> {

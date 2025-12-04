@@ -1,6 +1,6 @@
 import { Employee } from "../types";
 
-const API_BASE = "https://backend.tws.ceyloncreative.online/api/employees";
+const API_BASE = "http://localhost:3000/api/employees";
 
 const buildFormData = (obj: any, file?: File) => {
   const fd = new FormData();
