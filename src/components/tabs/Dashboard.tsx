@@ -120,13 +120,13 @@ export const Dashboard = () => {
     });
 
     socket.on("shift-change", () => {
-      console.log("Shift changed! Reloading...");
-      window.location.reload();
+      console.log("Shift changed smoothly!");
     });
 
     return () => {
       socket.disconnect();
     };
+
   }, []);
 
   const latest50Logs = [...logs]
@@ -159,7 +159,7 @@ export const Dashboard = () => {
             <StatCard title="Present (Current Shift)" value={formatMF(stats.present)} icon={CheckCircle} color="green" />
             <StatCard title="Absent (Current Shift)" value={formatMF(stats.absent)} icon={XCircle} color="red" />
             <StatCard
-              title="Late Coming (Current Shift45)"
+              title="Late Coming (Current Shift)"
               value={formatMF(stats.lateComing)}
               subtitle={stats.lateComing?.percentage ? `${stats.lateComing.percentage} of shift` : ""}
               icon={Clock}
@@ -216,9 +216,8 @@ export const Dashboard = () => {
                     </td>
                     <td className="px-8 py-4 text-sm">
                       <span
-                        className={`px-4 py-2 rounded-full text-xs font-bold ${
-                          statusColors[formatStatus(log.status)] || "bg-gray-100 text-gray-800"
-                        }`}
+                        className={`px-4 py-2 rounded-full text-xs font-bold ${statusColors[formatStatus(log.status)] || "bg-gray-100 text-gray-800"
+                          }`}
                       >
                         {formatStatus(log.status)}
                       </span>

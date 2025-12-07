@@ -7,10 +7,9 @@ import toast from 'react-hot-toast';
 interface HeaderProps {
   userName: string;
   userRole: string;
-
 }
 
-export const Header = ({  }: HeaderProps) => {
+export const Header = ({ }: HeaderProps) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -22,13 +21,34 @@ export const Header = ({  }: HeaderProps) => {
     return () => clearInterval(timer);
   }, []);
 
+  // Handle fullscreen change and toggle scrollbar
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const fullscreenNow = !!document.fullscreenElement;
+      setIsFullscreen(fullscreenNow);
+
+      if (fullscreenNow) {
+        document.body.classList.add('fullscreen-mode');
+      } else {
+        document.body.classList.remove('fullscreen-mode');
+      }
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+
+    // Initial check
+    handleFullscreenChange();
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
-      setIsFullscreen(true);
+      document.documentElement.requestFullscreen?.();
     } else {
-      document.exitFullscreen();
-      setIsFullscreen(false);
+      document.exitFullscreen?.();
     }
   };
 
@@ -39,46 +59,67 @@ export const Header = ({  }: HeaderProps) => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 h-16 bg-white shadow-md z-50 border-b border-gray-200">
-      <div className="h-full px-6 flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <img src={logo} className='h-10 w-10' />
-          <div className="hidden md:block">
-            <h1 className="text-xl font-bold text-gray-800">TWS ATTENDANCE DASHBOARD</h1>
+    <>
+      {/* Add global CSS for fullscreen mode */}
+      <style jsx global>{`
+        body.fullscreen-mode {
+          overflow: hidden !important;
+        }
+
+        /* Optional: Also hide scrollbar visually in WebKit browsers */
+        body.fullscreen-mode::-webkit-scrollbar {
+          display: none;
+        }
+        body.fullscreen-mode {
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;     /* Firefox */
+        }
+      `}</style>
+
+      <header className="fixed top-0 left-0 right-0 h-16 bg-white shadow-md z-50 border-b border-gray-200">
+        <div className="h-full px-6 flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <img src={logo} alt="Logo" className="h-10 w-10" />
+            <div className="hidden md:block">
+              <h1 className="text-xl font-bold text-gray-800">TWS ATTENDANCE DASHBOARD</h1>
+            </div>
           </div>
-        </div>
 
-        <div className="flex-1 flex justify-center">
-          <div className="text-center">
-            <p className="text-sm font-medium text-gray-600">Sri Lanka Time</p>
-            <p className="text-base font-semibold text-gray-800">{formatSriLankanDateTime(currentTime)}</p>
+          <div className="flex-1 flex justify-center">
+            <div className="text-center">
+              <p className="text-sm font-medium text-gray-600">Sri Lanka Time</p>
+              <p className="text-base font-semibold text-gray-800">
+                {formatSriLankanDateTime(currentTime)}
+              </p>
+            </div>
           </div>
-        </div>
 
-        <div className="flex items-center space-x-4">
-          <button
-            onClick={toggleFullscreen}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            title="Toggle Fullscreen"
-          >
-            {isFullscreen ? (
-              <Minimize className="w-5 h-5 text-gray-600" />
-            ) : (
-              <Maximize className="w-5 h-5 text-gray-600" />
-            )}
-          </button>
-
-          {!isFullscreen && (
+          <div className="flex items-center space-x-4">
             <button
-              onClick={handleLogout}
-              className="flex items-center space-x-2 px-1 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
+              onClick={toggleFullscreen}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
             >
-              <LogOut className="w-4 h-4" />
+              {isFullscreen ? (
+                <Minimize className="w-5 h-5 text-gray-600" />
+              ) : (
+                <Maximize className="w-5 h-5 text-gray-600" />
+              )}
             </button>
-          )}
 
+            {/* Hide logout button in fullscreen for cleaner look (optional) */}
+            {!isFullscreen && (
+              <button
+                onClick={handleLogout}
+                className="flex items-center space-x-2 px-2 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                {/*<span className="hidden sm:inline">Logout</span>*/}
+              </button>
+            )}
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+    </>
   );
 };

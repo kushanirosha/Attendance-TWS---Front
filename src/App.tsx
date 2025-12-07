@@ -26,6 +26,7 @@ import dummyDataJson from './data/dummyData.json';
 
 // Auth Service
 import { authService } from './services/authService';
+import { ChristmasEffect } from './components/ChristmasEffect';
 
 // ──────────────────────────────────────────────────────────────
 // Protected Route Component
@@ -110,6 +111,8 @@ const AppLayout = () => {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
       <Header onLogout={handleLogout} />
+
+      <ChristmasEffect />
 
       <div className="flex flex-1 overflow-hidden">
         <Sidebar

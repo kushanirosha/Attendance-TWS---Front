@@ -23,12 +23,17 @@ export const Projects = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
+  // Get current logged-in user from sessionStorage
+  const userJson = sessionStorage.getItem("user");
+  const currentUser = userJson ? JSON.parse(userJson) : null;
+  const isSTL = currentUser?.role === "stl";
+  const isReadOnly = isSTL;
+
   useEffect(() => {
     const loadData = async () => {
       const projData = await fetchProjects();
       const empData = await fetchEmployees();
 
-      // ✅ Parse employee IDs from JSON string like ["1006", "1005"]
       const parsedProjects = projData.map((p: any) => ({
         ...p,
         employees: typeof p.employees === 'string'
@@ -48,7 +53,6 @@ export const Projects = () => {
   const handleAddProject = async (project: Omit<Project, 'id'>) => {
     try {
       const saved = await addProjectAPI(project);
-
       const parsedSaved = {
         ...saved,
         employees: typeof saved.employees === 'string'
@@ -69,7 +73,6 @@ export const Projects = () => {
   const handleEditProject = async (id: string, updates: Partial<Project>) => {
     try {
       const updated = await updateProjectAPI(id, updates);
-
       const parsedUpdated = {
         ...updated,
         employees: typeof updated.employees === 'string'
@@ -98,16 +101,27 @@ export const Projects = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900">Projects</h2>
-        <motion.button
-          onClick={() => setIsAddModalOpen(true)}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="flex items-center space-x-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg"
-        >
-          <Plus className="w-5 h-5" />
-          <span>Add Project</span>
-        </motion.button>
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Projects</h2>
+          {isSTL && (
+            <span className="text-sm font-medium text-orange-600">
+              (View Only - STL)
+            </span>
+          )}
+        </div>
+
+        {/* Hide Add Button for STL */}
+        {!isReadOnly && (
+          <motion.button
+            onClick={() => setIsAddModalOpen(true)}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="flex items-center space-x-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow-md"
+          >
+            <Plus className="w-5 h-5" />
+            <span>Add Project</span>
+          </motion.button>
+        )}
       </div>
 
       {/* Projects Table */}
@@ -120,68 +134,97 @@ export const Projects = () => {
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Name</th>
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Department</th>
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Employees</th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
+                {!isReadOnly && (
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
+                )}
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {projects.map(p => (
-                <tr key={p.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4 text-sm">{p.id}</td>
-                  <td className="px-6 py-4 text-sm">{p.name}</td>
-                  <td className="px-6 py-4 text-sm">{p.department}</td>
-                  <td className="px-6 py-4 text-sm">
-                    {Array.isArray(p.employees)
-                      ? p.employees.join(', ') // ✅ show as 1006, 1005
-                      : '—'}
-                  </td>
-                  <td className="px-6 py-4 text-sm flex space-x-3">
-                    <motion.button
-                      onClick={() => { setSelectedProject(p); setIsEditModalOpen(true); }}
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="text-blue-600 hover:text-blue-800"
-                    >
-                      <Edit className="w-5 h-5" />
-                    </motion.button>
-                    <motion.button
-                      onClick={() => handleDeleteProject(p.id)}
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="text-red-600 hover:text-red-800"
-                    >
-                      <Trash className="w-5 h-5" />
-                    </motion.button>
+              {projects.length === 0 ? (
+                <tr>
+                  <td colSpan={isReadOnly ? 4 : 5} className="px-6 py-8 text-center text-gray-500">
+                    No projects found.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                projects.map(p => (
+                  <tr key={p.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4 text-sm font-medium">{p.id}</td>
+                    <td className="px-6 py-4 text-sm">{p.name}</td>
+                    <td className="px-6 py-4 text-sm text-gray-600">{p.department}</td>
+                    <td className="px-6 py-4 text-sm">
+                      {Array.isArray(p.employees) && p.employees.length > 0
+                        ? p.employees.join(', ')
+                        : '—'}
+                    </td>
+                    {!isReadOnly && (
+                      <td className="px-6 py-4 text-sm flex space-x-4">
+                        <motion.button
+                          onClick={() => {
+                            setSelectedProject(p);
+                            setIsEditModalOpen(true);
+                          }}
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="text-blue-600 hover:text-blue-800"
+                          title="Edit Project"
+                        >
+                          <Edit className="w-5 h-5" />
+                        </motion.button>
+                        <motion.button
+                          onClick={() => handleDeleteProject(p.id)}
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="text-red-600 hover:text-red-800"
+                          title="Delete Project"
+                        >
+                          <Trash className="w-5 h-5" />
+                        </motion.button>
+                      </td>
+                    )}
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
       </div>
 
-      {/* Add Modal */}
-      <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} title="Add Project">
-        <ProjectForm employees={employees} onSubmit={handleAddProject} />
-      </Modal>
+      {/* Add Modal - Only shown if not STL */}
+      {!isReadOnly && (
+        <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} title="Add Project">
+          <ProjectForm employees={employees} onSubmit={handleAddProject} />
+        </Modal>
+      )}
 
-      {/* Edit Modal */}
-      <Modal isOpen={isEditModalOpen} onClose={() => { setIsEditModalOpen(false); setSelectedProject(null); }} title="Edit Project">
-        {selectedProject && (
-          <ProjectForm
-            project={selectedProject}
-            employees={employees}
-            onSubmit={(updates) => handleEditProject(selectedProject.id, updates)}
-          />
-        )}
-      </Modal>
+      {/* Edit Modal - Only shown if not STL */}
+      {!isReadOnly && (
+        <Modal
+          isOpen={isEditModalOpen}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setSelectedProject(null);
+          }}
+          title="Edit Project"
+        >
+          {selectedProject && (
+            <ProjectForm
+              project={selectedProject}
+              employees={employees}
+              onSubmit={(updates) => handleEditProject(selectedProject.id, updates)}
+            />
+          )}
+        </Modal>
+      )}
     </div>
   );
 };
 
+// ProjectForm remains unchanged
 interface ProjectFormProps {
   project?: Project;
   employees: Employee[];
-  onSubmit: (project: Omit<Project, 'id'>) => void;
+  onSubmit: (project: Omit<Project, 'id'> | Partial<Project>) => void;
 }
 
 const ProjectForm = ({ project, employees, onSubmit }: ProjectFormProps) => {
@@ -190,7 +233,6 @@ const ProjectForm = ({ project, employees, onSubmit }: ProjectFormProps) => {
   const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
   const [search, setSearch] = useState('');
 
-  // ✅ Load existing employees when editing a project
   useEffect(() => {
     if (project?.employees && Array.isArray(project.employees)) {
       setSelectedEmployees(project.employees.map(String));
@@ -238,7 +280,6 @@ const ProjectForm = ({ project, employees, onSubmit }: ProjectFormProps) => {
         >
           <option value="IT Department">IT Department</option>
           <option value="Data Entry Department">Data Entry Department</option>
-          {/* <option value="Administration Department">Administration Department</option> */}
         </select>
       </div>
 
@@ -252,33 +293,34 @@ const ProjectForm = ({ project, employees, onSubmit }: ProjectFormProps) => {
           className="w-full mb-2 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:outline-none"
         />
 
-        <div className="max-h-48 overflow-y-auto border border-gray-200 rounded-lg p-2">
-          {filteredEmployees.length === 0 && (
-            <p className="text-gray-400 text-sm">No employees found.</p>
+        <div className="max-h-48 overflow-y-auto border border-gray-200 rounded-lg p-2 bg-gray-50">
+          {filteredEmployees.length === 0 ? (
+            <p className="text-gray-400 text-sm py-2">No employees found.</p>
+          ) : (
+            filteredEmployees.map(emp => (
+              <label
+                key={emp.id}
+                className="flex items-center space-x-2 py-2 px-2 rounded hover:bg-gray-100 cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedEmployees.includes(emp.id)}
+                  onChange={() => toggleEmployee(emp.id)}
+                  className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                />
+                <span className="text-sm text-gray-700">{emp.id} - {emp.name}</span>
+              </label>
+            ))
           )}
-          {filteredEmployees.map(emp => (
-            <label
-              key={emp.id}
-              className="flex items-center space-x-2 py-1 px-2 rounded hover:bg-gray-100 cursor-pointer"
-            >
-              <input
-                type="checkbox"
-                checked={selectedEmployees.includes(emp.id)}
-                onChange={() => toggleEmployee(emp.id)}
-                className="h-4 w-4 text-blue-500 border-gray-300 rounded focus:ring-blue-400"
-              />
-              <span className="text-sm text-gray-700">{emp.id} - {emp.name}</span>
-            </label>
-          ))}
         </div>
       </div>
 
-      <div className="flex justify-end">
+      <div className="flex justify-end space-x-3">
         <button
           type="submit"
-          className="px-5 py-2 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition-colors"
+          className="px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
         >
-          Save
+          {project ? 'Update' : 'Create'} Project
         </button>
       </div>
     </form>

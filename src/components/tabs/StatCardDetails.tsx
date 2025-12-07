@@ -2,10 +2,10 @@
 import { useState, useEffect } from "react";
 import { fetchStats, type Stats } from "../../services/statsDetailsService";
 
-const shiftColors: Record<string, string> = {
-  Morning: "bg-yellow-100 text-yellow-800 border-yellow-300",
-  Noon: "bg-blue-100 text-blue-800 border-blue-300",
-  Night: "bg-purple-100 text-purple-800 border-purple-300",
+const shiftBg: Record<string, string> = {
+  Morning: "bg-yellow-50 text-yellow-800 border-yellow-200",
+  Noon: "bg-blue-50 text-blue-800 border-blue-200",
+  Night: "bg-purple-50 text-purple-800 border-purple-200",
 };
 
 const shiftTimings: Record<string, string> = {
@@ -31,14 +31,14 @@ export const StatCardDetails = () => {
     };
 
     loadStats();
-    const interval = setInterval(loadStats, 30_000);
+    const interval = setInterval(loadStats, 90_000);
     return () => clearInterval(interval);
   }, []);
 
   if (loading || !stats) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-50">
-        <div className="text-4xl font-bold text-blue-600 animate-pulse">
+      <div className="flex items-center justify-center h-screen bg-gray-100">
+        <div className="text-xl font-semibold text-blue-600 animate-pulse">
           Loading Stats...
         </div>
       </div>
@@ -48,67 +48,101 @@ export const StatCardDetails = () => {
   const projectNames = stats.projects || [];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 p-6">
-      {/* Current Shift */}
-      <div className={`max-w-4xl mx-auto rounded-3xl p-10 text-center shadow-2xl ${shiftColors[stats.currentShift]}`}>
-        <h1 className="text-7xl font-black">{stats.currentShift} SHIFT</h1>
-        <p className="text-3xl mt-4 font-semibold">{shiftTimings[stats.currentShift]}</p>
-        <p className="text-lg mt-6 text-gray-700">Last Updated: {stats.updatedAt}</p>
-      </div>
+    <div className="space-y-6 p-6">
 
-      {/* Total Active */}
-      <div className="max-w-4xl mx-auto mt-10 bg-white rounded-3xl shadow-2xl p-10 text-center">
-        <h2 className="text-5xl font-bold text-gray-800">TOTAL ACTIVE NOW</h2>
-        <p className="text-9xl font-black text-blue-600 mt-6">{stats.active.total}</p>
-        <p className="text-3xl mt-6 text-gray-700">
-          <span className="text-green-600 font-bold">Male {stats.active.male}</span> • 
-          <span className="text-pink-600 font-bold"> Female {stats.active.female}</span>
+      {/* ===== SHIFT CARD ===== */}
+      <div className={`rounded-2xl p-8 text-center shadow-lg border-2 ${shiftBg[stats.currentShift]}`}>
+        <h1 className="text-4xl font-bold">{stats.currentShift} Shift</h1>
+        <p className="text-lg mt-2 opacity-90">{shiftTimings[stats.currentShift]}</p>
+        <p className="text-sm mt-4 text-gray-600">
+          {/*Updated: {new Date(stats.updatedAt).toLocaleTimeString()}*/}
         </p>
       </div>
 
-      {/* Projects Grid */}
-      <div className="max-w-7xl mx-auto mt-12 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-        {projectNames.map(project => {
-          const data = stats.activeByProject[project];
-          if (!data) return null;
-
-          return (
-            <div
-              key={project}
-              className="bg-white rounded-2xl shadow-xl p-8 text-center border-4 border-gray-300 hover:border-blue-500 transition-all"
-            >
-              <h3 className="text-3xl font-black text-gray-800 mb-4">{project}</h3>
-              <p className="text-6xl font-bold text-blue-600">{data.total}</p>
-              <p className="text-lg mt-4 text-gray-600">
-                <span className="text-green-600 font-semibold">{data.male}♂</span> • 
-                <span className="text-pink-600 font-semibold"> {data.female}♀</span>
-              </p>
-            </div>
-          );
-        })}
+      {/* ===== TOTAL ACTIVE NOW ===== */}
+      <div className="bg-white rounded-2xl shadow-md border p-8 text-center">
+        <h2 className="text-2xl font-semibold text-gray-700">Total Active Now</h2>
+        <p className="text-6xl font-extrabold text-blue-600 mt-4">{stats.active.total}</p>
+        <div className="flex justify-center gap-10 mt-6 text-lg">
+          <span className="text-green-600 font-semibold">Male {stats.active.male}</span>
+          <span className="text-pink-600 font-semibold">Female {stats.active.female}</span>
+        </div>
       </div>
 
-      {/* Special Roles */}
-      <div className="max-w-4xl mx-auto mt-12 grid grid-cols-2 md:grid-cols-4 gap-6">
-        {["LTL", "STL", "IT", "ADMIN"].map(role => (
-          <div
-            key={role}
-            className="bg-gradient-to-br from-orange-100 to-orange-200 rounded-2xl shadow-xl p-8 text-center border-4 border-orange-400"
-          >
-            <h3 className="text-3xl font-bold text-orange-900">{role}</h3>
-            <p className="text-7xl font-black text-orange-700 mt-4">
-              {stats.activeNow[role] || 0}
-            </p>
+      {/* ===== SPECIAL ROLES (LTL, STL, IT, ADMIN) ===== */}
+      <div className="bg-white rounded-2xl shadow-md border p-8">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">Special Roles Active Now</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {(["LTL", "STL", "IT", "ADMIN"] as const).map((role) => {
+            const data = stats.activeNow[role];
+            return (
+              <div key={role} className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-6 text-center border border-indigo-200">
+                <h3 className="text-lg font-bold text-indigo-800">{role}</h3>
+                <p className="text-4xl font-extrabold text-indigo-600 mt-3">{data.total}</p>
+                <div className="flex justify-center gap-4 mt-3 text-sm">
+                  <span className="text-green-600 font-medium">Male {data.male}</span>
+                  <span className="text-pink-600 font-medium">Female {data.female}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ===== PROJECT WISE ACTIVE ===== */}
+      <div className="bg-white rounded-2xl shadow-md border p-8">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">Project Wise Active</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+          {projectNames.map((project) => {
+            const data = stats.activeByProject[project];
+            if (!data) return null;
+
+            return (
+              <div
+                key={project}
+                className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-5 text-center border hover:shadow-lg transition-shadow"
+              >
+                <h3 className="text-sm font-bold text-gray-700 truncate">{project}</h3>
+                <p className="text-3xl font-extrabold text-blue-600 mt-2">{data.total}</p>
+                <div className="flex justify-center gap-3 mt-2 text-xs">
+                  <span className="text-green-600 font-medium">Male {data.male}</span>
+                  <span className="text-pink-600 font-medium">Female {data.female}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ===== ABSENT EMPLOYEES ===== */}
+      <div className="bg-red-50 rounded-2xl border-2 border-red-200 p-8">
+        <h2 className="text-2xl font-bold text-red-800 text-center mb-6">
+          Absent Today ({stats.absent.total})
+        </h2>
+        {stats.absent.total === 0 ? (
+          <p className="text-center text-green-600 font-semibold text-lg">
+            All Present! Great Job Team!
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {stats.absent.list.map((emp) => (
+              <div
+                key={emp.id}
+                className="bg-white rounded-lg p-4 shadow-sm border border-red-100 flex items-center justify-between"
+              >
+                <div>
+                  <p className="font-semibold text-gray-800">{emp.name}</p>
+                  <p className="text-sm text-gray-600">ID: {emp.id}</p>
+                </div>
+                <span className="text-xs bg-red-100 text-red-700 px-3 py-1 rounded-full font-medium">
+                  {emp.project}
+                </span>
+              </div>
+            ))}
           </div>
-        ))}
+        )}
       </div>
 
-      {/* Absent */}
-      <div className="max-w-4xl mx-auto mt-12 bg-gradient-to-r from-red-600 to-red-800 rounded-3xl shadow-2xl p-12 text-center text-white">
-        <h2 className="text-5xl font-black">ABSENT TODAY</h2>
-        <p className="text-9xl font-black mt-6">{stats.absent.total}</p>
-        <p className="text-3xl mt-4">Employees</p>
-      </div>
     </div>
   );
 };
