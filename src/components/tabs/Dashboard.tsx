@@ -159,7 +159,7 @@ export const Dashboard = () => {
             <StatCard title="Present (Current Shift)" value={formatMF(stats.present)} icon={CheckCircle} color="green" />
             <StatCard title="Absent (Current Shift)" value={formatMF(stats.absent)} icon={XCircle} color="red" />
             <StatCard
-              title="Late Coming (Current Shift)"
+              title="Late Coming (Current Shift45)"
               value={formatMF(stats.lateComing)}
               subtitle={stats.lateComing?.percentage ? `${stats.lateComing.percentage} of shift` : ""}
               icon={Clock}
