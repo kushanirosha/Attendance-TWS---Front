@@ -92,41 +92,41 @@ export const Dashboard = () => {
 
   // WebSocket Connection
   useEffect(() => {
-    const socket: Socket = io(WS_URL, {
+    const socket = io("http://localhost:3000", {
       transports: ["websocket"],
       reconnection: true,
-      reconnectionAttempts: 10,
-      reconnectionDelay: 3000,
+      reconnectionAttempts: Infinity,
+      reconnectionDelay: 1000,
     });
 
     socket.on("connect", () => {
-      console.log("Real-time dashboard connected");
+      console.log("Connected to server:", socket.id);
       setConnectionStatus("connected");
     });
 
     socket.on("connect_error", (err) => {
-      console.error("WebSocket error:", err);
+      console.error("Connection error:", err.message);
       setConnectionStatus("disconnected");
     });
 
     socket.on("disconnect", () => {
       setConnectionStatus("disconnected");
+      console.log("Disconnected from server");
     });
 
-    socket.on("dashboard-update", (payload: { stats: Stats; logs: Log[]; updatedAt: string }) => {
+    socket.on("dashboard-update", (payload) => {
       setStats(payload.stats);
       setLogs(payload.logs || []);
       setLoading(false);
     });
 
     socket.on("shift-change", () => {
-      console.log("Shift changed smoothly!");
+      console.log("Shift changed!");
     });
 
     return () => {
       socket.disconnect();
     };
-
   }, []);
 
   const latest50Logs = [...logs]
