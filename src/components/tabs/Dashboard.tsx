@@ -181,7 +181,7 @@ export const Dashboard = () => {
       <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
         <div className="p-8 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
           <h3 className="text-2xl font-bold text-gray-900">
-            Latest Check-ins - {stats?.currentShift || "All"} Shift
+            Latest Check-ins : {stats?.currentShift || "All"} Shift
           </h3>
           <p className="text-sm text-gray-600 mt-1">Real-time • Showing latest 50</p>
         </div>
