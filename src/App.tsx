@@ -109,7 +109,7 @@ const AppLayout = () => {
   const allProjectIds = data.projects.map(p => p.id);
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header onLogout={handleLogout} />
 
       <ChristmasEffect />
