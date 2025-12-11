@@ -79,14 +79,24 @@ export const StatCardDetails = () => {
           Special Roles Active Now
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {(["LTL", "STL", "IT", "ADMIN"] as const).map((role) => {
-            const data = stats.activeNow[role];
+          {(["LTL", "STL", "IT", "ADMIN"] as const).map((roleKey) => {
+            const displayLabel: Record<typeof roleKey, string> = {
+              LTL: "TL",  
+              STL: "STL",
+              IT: "IT",
+              ADMIN: "ADMIN",
+            };
+
+            const data = stats.activeNow[roleKey];
+
             return (
               <div
-                key={role}
+                key={roleKey}
                 className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-6 text-center border border-indigo-200"
               >
-                <h3 className="text-lg font-bold text-indigo-800">{role}</h3>
+                <h3 className="text-lg font-bold text-indigo-800">
+                  {displayLabel[roleKey]}
+                </h3>
                 <p className="text-4xl font-extrabold text-indigo-600 mt-3">
                   {data.total}
                 </p>
