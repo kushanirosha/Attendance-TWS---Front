@@ -166,7 +166,7 @@ export const Dashboard = () => {
               color="yellow"
             />
             <StatCard
-              title="Rest Days (All Shifts)"
+              title="Rest Day (Current Shift)"
               value={formatMF(stats.restDayShift)}
               icon={Calendar}
               color="orange"
