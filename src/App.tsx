@@ -27,6 +27,7 @@ import dummyDataJson from './data/dummyData.json';
 // Auth Service
 import { authService } from './services/authService';
 import { ChristmasEffect } from './components/ChristmasEffect';
+import { NewYear2026Effect } from './components/NewYearTicker';
 
 // ──────────────────────────────────────────────────────────────
 // Protected Route Component
@@ -112,7 +113,9 @@ const AppLayout = () => {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header onLogout={handleLogout} />
 
-      <ChristmasEffect />
+      {/*<ChristmasEffect />*/}
+
+      <NewYear2026Effect />
 
       <div className="flex flex-1 overflow-hidden">
         <Sidebar
@@ -165,7 +168,8 @@ const AppLayout = () => {
         </main>
       </div>
 
-      {/* <Footer /> */}
+      {/*<Footer />*/}
+
     </div>
   );
 };
