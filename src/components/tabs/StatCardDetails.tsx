@@ -48,7 +48,7 @@ export const StatCardDetails = () => {
   const projectNames = stats.projects || [];
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 pt-5">
       {/* ===== CURRENT SHIFT CARD ===== */}
       <div
         className={`rounded-2xl p-2 text-center shadow-lg border-2 ${shiftBg[stats.currentShift]}`}

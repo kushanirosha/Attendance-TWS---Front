@@ -134,7 +134,7 @@ export const Dashboard = () => {
     .slice(0, 50);
 
   return (
-    <div className="space-y-12 p-6">
+    <div className="space-y-12 pt-5">
       {/* Connection Status + Current Shift */}
       <div className="flex items-center justify-between">
         <div className={`rounded-2xl border-4 p-2 text-center flex-1 ${shiftColors[stats?.currentShift || "Morning"]}`}>
@@ -196,7 +196,7 @@ export const Dashboard = () => {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-100">
                 <tr>
                   <th className="px-8 py-4 text-left text-xs font-bold text-gray-700 uppercase">ID</th>
                   <th className="px-8 py-4 text-left text-xs font-bold text-gray-700 uppercase">Name</th>

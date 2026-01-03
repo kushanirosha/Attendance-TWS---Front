@@ -117,7 +117,7 @@ export const Reports = () => {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900">Reports</h2>
+      <h2 className="text-2xl font-bold text-gray-900">Attendance Reports</h2>
 
       {/* Filters Card */}
       <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6">

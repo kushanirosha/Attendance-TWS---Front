@@ -115,7 +115,7 @@ const AppLayout = () => {
 
       {/*<ChristmasEffect />*/}
 
-      <NewYear2026Effect />
+      {/*<NewYear2026Effect />*/}
 
       <div className="flex flex-1 overflow-hidden">
         <Sidebar

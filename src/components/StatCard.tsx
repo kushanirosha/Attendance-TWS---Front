@@ -38,7 +38,7 @@ export const StatCard = ({ title, value, subtitle, icon: Icon, color }: StatCard
 
   const gradient = gradients[color] || "bg-gradient-to-br from-gray-50 to-gray-100";
 
-  return (
+  return ( 
     <div
       className={`flex h-48 justify-between items-center ${gradient} rounded-2xl shadow-md border border-gray-100 p-6 hover:shadow-lg transition-all duration-200`}
     >

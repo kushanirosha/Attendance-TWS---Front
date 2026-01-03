@@ -163,7 +163,7 @@ export const Users = () => {
       )}
 
       {/* Users Table */}
-      <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+      <div className="rounded-xl shadow-md border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
           {loading ? (
             <div className="p-8 text-center">
@@ -172,7 +172,7 @@ export const Users = () => {
             </div>
           ) : (
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-gray-200">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                     ID
