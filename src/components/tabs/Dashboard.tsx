@@ -84,9 +84,11 @@ export const Dashboard = () => {
 
   const statusColors: Record<string, string> = {
     "On time": "bg-green-100 text-green-800",
-    Late: "bg-yellow-100 text-yellow-800",
+    Late: "bg-red-100 text-red-800",
+    "Half Day": "bg-orange-100 text-orange-800",
     "Half day": "bg-orange-100 text-orange-800",
-    "Early Punchout": "bg-purple-100 text-purple-800",
+    Complete: "bg-indigo-100 text-indigo-800",
+    "N/A": "bg-gray-200 text-gray-600",
     Absent: "bg-red-100 text-red-800",
   };
 
@@ -177,13 +179,13 @@ export const Dashboard = () => {
         )}
       </div>
 
-      {/* Live Attendance Table */}
+      {/* Live Attendance Table - Now shows BOTH Check-in & Check-out */}
       <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
         <div className="p-8 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
           <h3 className="text-2xl font-bold text-gray-900">
-            Latest Check-ins : {stats?.currentShift || "All"} Shift
+            Live Activity 
           </h3>
-          <p className="text-sm text-gray-600 mt-1">Real-time • Showing latest 50</p>
+          <p className="text-sm text-gray-600 mt-1">Real-time • Check-ins & Check-outs • Latest 50</p>
         </div>
 
         {loading ? (
@@ -192,38 +194,55 @@ export const Dashboard = () => {
             <p className="mt-4 text-gray-600 text-lg">Connecting to live data...</p>
           </div>
         ) : latest50Logs.length === 0 ? (
-          <div className="p-16 text-center text-gray-500 text-xl">No check-ins yet today</div>
+          <div className="p-16 text-center text-gray-500 text-xl">No activity yet today</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-100">
                 <tr>
-                  <th className="px-8 py-4 text-left text-xs font-bold text-gray-700 uppercase">ID</th>
-                  <th className="px-8 py-4 text-left text-xs font-bold text-gray-700 uppercase">Name</th>
-                  <th className="px-8 py-4 text-left text-xs font-bold text-gray-700 uppercase">Project</th>
-                  <th className="px-8 py-4 text-left text-xs font-bold text-gray-700 uppercase">Time</th>
-                  <th className="px-8 py-4 text-left text-xs font-bold text-gray-700 uppercase">Status</th>
+                  <th className="px-8 py-4 text-center text-xs font-bold text-gray-700 uppercase">ID</th>
+                  <th className="px-8 py-4 text-center text-xs font-bold text-gray-700 uppercase">Name</th>
+                  <th className="px-8 py-4 text-center text-xs font-bold text-gray-700 uppercase">Project</th>
+                  <th className="px-8 py-4 text-center text-xs font-bold text-gray-700 uppercase">Time</th>
+                  <th className="px-8 py-4 text-center text-xs font-bold text-gray-700 uppercase">Event</th>
+                  <th className="px-8 py-4 text-center text-xs font-bold text-gray-700 uppercase">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {latest50Logs.map((log) => (
-                  <tr key={log.id} className="hover:bg-gray-50 transition">
-                    <td className="px-8 py-4 text-sm font-medium text-gray-900">{log.id}</td>
-                    <td className="px-8 py-4 text-sm text-gray-900">{log.name || "Unknown"}</td>
-                    <td className="px-8 py-4 text-sm text-gray-900">{log.project || "N/A"}</td>
-                    <td className="px-8 py-4 text-sm font-medium text-gray-600">
-                      {formatToSriLankaTime(log.timestamp)}
-                    </td>
-                    <td className="px-8 py-4 text-sm">
-                      <span
-                        className={`px-4 py-2 rounded-full text-xs font-bold ${statusColors[formatStatus(log.status)] || "bg-gray-100 text-gray-800"
-                          }`}
-                      >
-                        {formatStatus(log.status)}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
+                {latest50Logs.map((log) => {
+                  const isCheckout = log.event === "Check_Out";
+                  const statusText = formatStatus(log.status);
+                  const eventText = isCheckout ? "Check_Out" : "Check_In";
+
+                  return (
+                    <tr key={`${log.id}-${log.timestamp}`} className="hover:bg-gray-50 transition">
+                      <td className="px-8 py-4 text-center text-sm font-medium text-gray-900">{log.id}</td>
+                      <td className="px-8 py-4 text-center text-sm text-gray-900">{log.name || "Unknown"}</td>
+                      <td className="px-8 py-4 text-center text-sm text-gray-900">{log.project || "N/A"}</td>
+                      <td className="px-8 py-4 text-center text-sm font-medium text-gray-600">
+                        {formatToSriLankaTime(log.timestamp)}
+                      </td>
+                      <td className="py-4 text-sm font-medium text-center">
+                        <span
+                          className={`px-3 py-1 rounded-full text-md ${isCheckout
+                            ? " text-red-500"
+                            : " text-green-400"
+                            }`}
+                        >
+                          {eventText}
+                        </span>
+                      </td>
+                      <td className="py-4 text-sm text-center">
+                        <span
+                          className={`px-4 py-2 rounded-full text-xs font-bold ${statusColors[statusText] || "bg-gray-100 text-gray-800"
+                            }`}
+                        >
+                          {statusText}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
