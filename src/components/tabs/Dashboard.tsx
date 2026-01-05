@@ -22,6 +22,7 @@ interface Log {
   checkInTime?: string;
   timestamp: string;
   status: string;
+  event: "Check_In" | "Check_Out"; // Added: now required from backend
 }
 
 // ──────────────────────────────────────────────────────
@@ -43,17 +44,20 @@ const formatToSriLankaTime = (utcString: string): string => {
   }
 };
 
-// Make status look nice
+// Updated to handle new checkout statuses: Complete, Incomplete, Half Day, N/A
 const formatStatus = (status: string): string => {
   if (!status) return "N/A";
+
   const map: Record<string, string> = {
-    onTime: "On time",
-    late: "Late",
-    halfDay: "Half day",
-    "On time": "On time",
-    Late: "Late",
-    "Half day": "Half day",
+    Complete: "Complete",
+    Incomplete: "Incomplete",
+    "Half Day": "Half Day",
+    halfDay: "Half Day",
+    "N/A": "N/A",
+    complete: "Complete",
+    incomplete: "Incomplete",
   };
+
   return map[status] || status;
 };
 
@@ -69,7 +73,7 @@ export const Dashboard = () => {
     return `M: ${obj.male ?? 0} | F: ${obj.female ?? 0}`;
   };
 
-  // Shift styling
+  // Shift styling (unchanged)
   const shiftColors: Record<string, string> = {
     Morning: "bg-yellow-100 text-yellow-800 border-yellow-300",
     Noon: "bg-blue-100 text-blue-800 border-blue-300",
@@ -82,7 +86,9 @@ export const Dashboard = () => {
     Night: "9:30 PM - 5:30 AM",
   };
 
+  // Updated status colors to support new backend values
   const statusColors: Record<string, string> = {
+    Incomplete: "bg-purple-100 text-purple-800",
     "On time": "bg-green-100 text-green-800",
     Late: "bg-red-100 text-red-800",
     "Half Day": "bg-orange-100 text-orange-800",
@@ -183,7 +189,7 @@ export const Dashboard = () => {
       <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
         <div className="p-8 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
           <h3 className="text-2xl font-bold text-gray-900">
-            Live Activity 
+            Live Activity
           </h3>
           <p className="text-sm text-gray-600 mt-1">Real-time • Check-ins & Check-outs • Latest 50</p>
         </div>
@@ -222,11 +228,11 @@ export const Dashboard = () => {
                       <td className="px-8 py-4 text-center text-sm font-medium text-gray-600">
                         {formatToSriLankaTime(log.timestamp)}
                       </td>
-                      <td className="py-4 text-sm font-medium text-center">
+                      <td className="py-4 text-md font-medium text-center">
                         <span
-                          className={`px-3 py-1 rounded-full text-md ${isCheckout
+                          className={`px-3 py-1 rounded-full ${isCheckout
                             ? " text-red-500"
-                            : " text-green-400"
+                            : " text-green-500"
                             }`}
                         >
                           {eventText}
