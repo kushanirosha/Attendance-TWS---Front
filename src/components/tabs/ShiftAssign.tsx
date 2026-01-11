@@ -9,7 +9,7 @@ import {
 } from "../../utils/dateUtils";
 import * as XLSX from "xlsx";
 import { ShiftTable } from "../ShiftTable";
-import { STLShiftTable } from "../STLShiftTable";   
+import { PTSShiftTable } from "../PTSShiftTable";   
 import { fetchProjects } from "../../services/projectService";
 import { fetchEmployees } from "../../services/employeeService";
 import {
@@ -188,7 +188,7 @@ export const ShiftAssign = () => {
     return <div className="text-center text-red-500 py-10">{error}</div>;
 
   // ---------- NEW: decide which table to render ----------
-  const isSTL = selectedProject?.name?.toUpperCase() === "STL";
+  const isPTS = selectedProject?.name?.toUpperCase() === "PTS";
 
   return (
     <div className="space-y-6">
@@ -315,7 +315,7 @@ export const ShiftAssign = () => {
       </div>
 
       {/* ---------- RENDER THE RIGHT TABLE ---------- */}
-      {selectedProject && !isSTL && (
+      {selectedProject && !isPTS && (
         <ShiftTable
           selectedProject={selectedProject}
           selectedMonth={selectedMonth}
@@ -331,8 +331,8 @@ export const ShiftAssign = () => {
         />
       )}
 
-      {selectedProject && isSTL && (
-        <STLShiftTable
+      {selectedProject && isPTS && (
+        <PTSShiftTable
           selectedProject={selectedProject}
           selectedMonth={selectedMonth}
           selectedYear={selectedYear}

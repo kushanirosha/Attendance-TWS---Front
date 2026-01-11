@@ -26,8 +26,8 @@ export const Projects = () => {
   // Get current logged-in user from sessionStorage
   const userJson = sessionStorage.getItem("user");
   const currentUser = userJson ? JSON.parse(userJson) : null;
-  const isSTL = currentUser?.role === "stl";
-  const isReadOnly = isSTL;
+  const isPTS = currentUser?.role === "pts";
+  const isReadOnly = isPTS;
 
   useEffect(() => {
     const loadData = async () => {
@@ -103,14 +103,14 @@ export const Projects = () => {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Projects</h2>
-          {isSTL && (
+          {isPTS && (
             <span className="text-sm font-medium text-orange-600">
-              (View Only - STL)
+              (View Only - PTS)
             </span>
           )}
         </div>
 
-        {/* Hide Add Button for STL */}
+        {/* Hide Add Button for PTS */}
         {!isReadOnly && (
           <motion.button
             onClick={() => setIsAddModalOpen(true)}
@@ -190,14 +190,14 @@ export const Projects = () => {
         </div>
       </div>
 
-      {/* Add Modal - Only shown if not STL */}
+      {/* Add Modal - Only shown if not PTS */}
       {!isReadOnly && (
         <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} title="Add Project">
           <ProjectForm employees={employees} onSubmit={handleAddProject} />
         </Modal>
       )}
 
-      {/* Edit Modal - Only shown if not STL */}
+      {/* Edit Modal - Only shown if not PTS */}
       {!isReadOnly && (
         <Modal
           isOpen={isEditModalOpen}

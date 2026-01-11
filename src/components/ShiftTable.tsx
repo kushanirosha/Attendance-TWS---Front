@@ -39,8 +39,8 @@ export const ShiftTable = ({
 
   const userJson = sessionStorage.getItem("user");
   const currentUser = userJson ? JSON.parse(userJson) : null;
-  const isSTL = currentUser?.role === "stl";
-  const isReadOnly = isSTL;
+  const isPTS = currentUser?.role === "pts";
+  const isReadOnly = isPTS;
 
   const getShiftColor = (shift: string) => {
     switch (shift) {
@@ -196,7 +196,7 @@ export const ShiftTable = ({
           <h3 className="text-lg font-bold text-gray-900">{selectedProject.name}</h3>
           <p className="text-sm text-gray-600">
             {months[selectedMonth]} {selectedYear} - Shift Schedule
-            {isSTL && <span className="ml-3 text-xs font-medium text-orange-600">(View Only - STL)</span>}
+            {isPTS && <span className="ml-3 text-xs font-medium text-orange-600">(View Only - PTS)</span>}
           </p>
         </div>
         <div className="flex space-x-2">

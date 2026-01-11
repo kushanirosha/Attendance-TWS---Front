@@ -28,7 +28,7 @@ export interface Stats {
   };
   activeNow: {
     LTL: ActiveNowRole;
-    STL: ActiveNowRole;
+    PTS: ActiveNowRole;
     IT: ActiveNowRole;
     ADMIN: ActiveNowRole;
   };

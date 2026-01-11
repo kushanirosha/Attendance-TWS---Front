@@ -3,7 +3,7 @@ export interface User {
   id: number;
   employeeId: string;
   name: string;
-  role: 'super_admin' | 'stl' | 'admin' | 'user';
+  role: 'super_admin' | 'pts' | 'admin' | 'user';
 }
 
 

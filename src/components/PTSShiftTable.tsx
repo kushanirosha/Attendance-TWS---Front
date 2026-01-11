@@ -5,7 +5,7 @@ import { format, getDay } from "date-fns";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 
-interface STLShiftTableProps {
+interface PTSShiftTableProps {
   selectedProject: Project;
   selectedMonth: number;
   selectedYear: number;
@@ -19,7 +19,7 @@ interface STLShiftTableProps {
   fetching: boolean;
 }
 
-export const STLShiftTable = ({
+export const PTSShiftTable = ({
   selectedProject,
   selectedMonth,
   selectedYear,
@@ -30,7 +30,7 @@ export const STLShiftTable = ({
   handleSave,
   saving,
   fetching,
-}: STLShiftTableProps) => {
+}: PTSShiftTableProps) => {
   const months = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December",
@@ -62,12 +62,12 @@ export const STLShiftTable = ({
   // Excel Export with colors
   const handleExportToExcel = async () => {
     const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet("STL Shift Schedule");
+    const worksheet = workbook.addWorksheet("PTS Shift Schedule");
 
     // Title
     worksheet.mergeCells(`A1:${String.fromCharCode(65 + daysInMonth)}1`);
     const titleCell = worksheet.getCell("A1");
-    titleCell.value = `${selectedProject.name} - ${months[selectedMonth]} ${selectedYear} STL Shift Schedule`;
+    titleCell.value = `${selectedProject.name} - ${months[selectedMonth]} ${selectedYear} PTS Shift Schedule`;
     titleCell.font = { size: 16, bold: true };
     titleCell.alignment = { horizontal: "center", vertical: "middle" };
 
@@ -161,7 +161,7 @@ export const STLShiftTable = ({
     // Download
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: "application/octet-stream" });
-    saveAs(blob, `${selectedProject.name.replace(/[^a-z0-9]/gi, '_')}_STL_${months[selectedMonth]}_${selectedYear}.xlsx`);
+    saveAs(blob, `${selectedProject.name.replace(/[^a-z0-9]/gi, '_')}_PTS_${months[selectedMonth]}_${selectedYear}.xlsx`);
   };
 
   return (
@@ -171,7 +171,7 @@ export const STLShiftTable = ({
         <div>
           <h3 className="text-lg font-bold text-gray-900">{selectedProject.name}</h3>
           <p className="text-sm text-gray-600">
-            {months[selectedMonth]} {selectedYear} - STL Shift Schedule
+            {months[selectedMonth]} {selectedYear} - PTS Shift Schedule
           </p>
         </div>
         <div className="flex space-x-2">

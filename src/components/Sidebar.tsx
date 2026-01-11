@@ -14,7 +14,7 @@ interface SidebarProps {
 
 const roleTabs = {
   super_admin: ['dashboard', 'statCardDetails', 'employees', 'shiftAssign', 'projects', 'reports', 'users'],
-  stl: ['dashboard', 'statCardDetails','shiftAssign', 'projects'],
+  pts: ['dashboard', 'statCardDetails','shiftAssign', 'projects'],
   admin: ['dashboard', 'statCardDetails', 'employees', 'shiftAssign', 'projects', 'reports'],
   user: ['dashboard'],
 };

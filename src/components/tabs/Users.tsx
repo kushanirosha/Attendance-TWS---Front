@@ -129,7 +129,7 @@ export const Users = () => {
                 >
                   <option value="user">User</option>
                   <option value="admin">Admin</option>
-                  <option value="stl">STL</option>
+                  <option value="pts">PTS</option>
                   <option value="super_admin">Super Admin</option>
                 </select>
               </div>
@@ -213,7 +213,7 @@ export const Users = () => {
                             ? 'bg-purple-100 text-purple-800'
                             : user.role === 'admin'
                             ? 'bg-blue-100 text-blue-800'
-                            : user.role === 'stl'
+                            : user.role === 'pts'
                             ? 'bg-yellow-100 text-yellow-800'
                             : 'bg-gray-100 text-gray-800'
                         }`}
