@@ -315,6 +315,7 @@ export const Employees = () => {
             >
               <option value="">Select a project</option>
               <option value="ADMIN">ADMIN</option>
+              <option value="ADMIN">New</option>
               {projects.map((proj) => (
                 <option key={proj.id} value={proj.name}>
                   {proj.name}
@@ -462,6 +463,7 @@ export const Employees = () => {
               >
                 <option value="">Select a project</option>
                 <option value="ADMIN">ADMIN</option>
+                <option value="ADMIN">New</option>
                 {projects.map((proj) => (
                   <option key={proj.id} value={proj.name}>
                     {proj.name}

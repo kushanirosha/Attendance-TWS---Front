@@ -27,7 +27,7 @@ export interface Stats {
     female: number;
   };
   activeNow: {
-    LTL: ActiveNowRole;
+    TL: ActiveNowRole;
     PTS: ActiveNowRole;
     IT: ActiveNowRole;
     ADMIN: ActiveNowRole;

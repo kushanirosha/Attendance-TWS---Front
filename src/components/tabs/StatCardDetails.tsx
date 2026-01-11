@@ -79,9 +79,9 @@ export const StatCardDetails = () => {
           Special Roles Active Now
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {(["LTL", "PTS", "IT", "ADMIN"] as const).map((roleKey) => {
+          {(["TL", "PTS", "IT", "ADMIN"] as const).map((roleKey) => {
             const displayLabel: Record<typeof roleKey, string> = {
-              LTL: "TL",  
+              TL: "TL",  
               PTS: "PTS",
               IT: "IT",
               ADMIN: "ADMIN",
