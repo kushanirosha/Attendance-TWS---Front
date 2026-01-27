@@ -171,7 +171,7 @@ export const Employees = () => {
                       <img
                         src={
                           employee.profileImage
-                            ? `http://localhost:3000/uploads/employees/${employee.profileImage}`
+                            ? `https://backend.tws.ceyloncreative.online/uploads/employees/${employee.profileImage}`
                             : 'https://icon-library.com/images/person-image-icon/person-image-icon-27.jpg'
                         }
                         alt={employee.name}

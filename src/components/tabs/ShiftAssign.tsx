@@ -292,7 +292,7 @@ export const ShiftAssign = () => {
                           key={emp.id}
                           src={
                             emp.profileImage
-                              ? `http://localhost:3000/uploads/employees/${emp.profileImage}`
+                              ? `https://backend.tws.ceyloncreative.online/uploads/employees/${emp.profileImage}`
                               : "https://icon-library.com/images/person-image-icon/person-image-icon-27.jpg"
                           }
                           alt={emp.name}

@@ -100,7 +100,7 @@ export const Dashboard = () => {
 
   // WebSocket Connection
   useEffect(() => {
-    const socket = io("http://localhost:3000", {
+    const socket = io(WS_URL, {
       transports: ["websocket"],
       reconnection: true,
       reconnectionAttempts: Infinity,
