@@ -1,6 +1,6 @@
 // src/components/Sidebar.tsx
 import { useEffect, useState } from 'react';
-import { LayoutDashboard, Users, Calendar, UserCog, ChevronRight, ChevronLeft, Folder, BarChart3, FileText } from 'lucide-react';
+import { LayoutDashboard, Users, Calendar, UserCog, ChevronRight, ChevronLeft, Folder, BarChart3, FileText, LayoutGrid } from 'lucide-react';
 import { TabType } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
 import { authService, User } from '../services/authService';
@@ -13,9 +13,9 @@ interface SidebarProps {
 }
 
 const roleTabs = {
-  super_admin: ['dashboard', 'statCardDetails', 'employees', 'shiftAssign', 'projects', 'reports', 'users'],
-  pts: ['dashboard', 'statCardDetails','shiftAssign', 'projects'],
-  admin: ['dashboard', 'statCardDetails', 'employees', 'shiftAssign', 'projects', 'reports'],
+  super_admin: ['dashboard', 'statCardDetails', 'employees', 'shiftAssign', 'projects', 'reports', 'others' ,'users'],
+  pts: ['dashboard', 'statCardDetails', 'shiftAssign', 'projects'],
+  admin: ['dashboard', 'statCardDetails', 'employees', 'shiftAssign', 'projects', 'reports', 'others'],
   user: ['dashboard'],
 };
 
@@ -26,6 +26,7 @@ const allTabs = [
   { id: 'shiftAssign', label: 'Shift Assign', icon: Calendar },
   { id: 'projects', label: 'Projects', icon: Folder },
   { id: 'reports', label: 'Reports', icon: FileText },
+  { id: 'others', label: 'Others', icon: LayoutGrid },
   { id: 'users', label: 'Users', icon: UserCog },
 ] as const;
 
@@ -69,8 +70,8 @@ export const Sidebar = ({ activeTab, onTabChange, isOpen, onToggle }: SidebarPro
                     key={tab.id}
                     onClick={() => onTabChange(tab.id)}
                     className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${isActive
-                        ? 'bg-blue-500 text-white shadow-md'
-                        : 'text-gray-700 hover:bg-gray-100'
+                      ? 'bg-blue-500 text-white shadow-md'
+                      : 'text-gray-700 hover:bg-gray-100'
                       }`}
                   >
                     <Icon className="w-5 h-5" />

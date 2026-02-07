@@ -28,6 +28,7 @@ import dummyDataJson from './data/dummyData.json';
 import { authService } from './services/authService';
 import { ChristmasEffect } from './components/ChristmasEffect';
 import { NewYear2026Effect } from './components/NewYearTicker';
+import { Others } from './components/tabs/Others';
 
 // ──────────────────────────────────────────────────────────────
 // Protected Route Component
@@ -163,6 +164,7 @@ const AppLayout = () => {
             )}
             {activeTab === 'statCardDetails' && <StatCardDetails />}
             {activeTab === 'reports' && <Reports />}
+            {activeTab === 'others' && <Others />}
             {activeTab === 'users' && <Users users={data.users} />}
           </div>
         </main>
